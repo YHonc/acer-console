@@ -1,0 +1,8 @@
+[package]
+name = "acer-rules"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+acer-protocol = { path = "../acer-protocol" }
+serde = { version = "1", features = ["derive"] }

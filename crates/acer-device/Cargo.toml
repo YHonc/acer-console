@@ -1,0 +1,14 @@
+[package]
+name = "acer-device"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+acer-protocol = { path = "../acer-protocol" }
+acer-rules = { path = "../acer-rules" }
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+
+[target.'cfg(windows)'.dependencies]
+wmi = { version = "=0.18.4", default-features = false }
+windows = { version = "=0.62.2", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Rpc", "Win32_System_Wmi", "Win32_System_LibraryLoader"] }

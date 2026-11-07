@@ -1,0 +1,73 @@
+{
+  "capability": {
+    "error": null,
+    "raw": {
+      "bytes_received": 172,
+      "bytes_written": 41,
+      "dispatch_attempted": true,
+      "error": null,
+      "packet_id": 0,
+      "request": {
+        "Function": "SUPPORT_AUDIO_MODE"
+      },
+      "response": {
+        "data": [
+          "MUSIC",
+          "MOVIE",
+          "VOICE",
+          "STRATEGY",
+          "RPG",
+          "SHOOTER",
+          "CUSTOM_AUDIO",
+          "AUTOMATIC"
+        ],
+        "request": "SUPPORT_AUDIO_MODE",
+        "result": 0
+      }
+    },
+    "value": {
+      "supported": [
+        "music",
+        "movie",
+        "voice",
+        "strategy",
+        "rpg",
+        "shooter",
+        "custom",
+        "automatic"
+      ],
+      "unrecognized": []
+    }
+  },
+  "identity": {
+    "bios": "V1.18",
+    "model": "Predator PHN16-71"
+  },
+  "setter_ack_schema_verified": false,
+  "state": {
+    "error": null,
+    "raw": {
+      "bytes_received": 100,
+      "bytes_written": 33,
+      "dispatch_attempted": true,
+      "error": null,
+      "packet_id": 20,
+      "request": {
+        "Function": "SOUND_MODE"
+      },
+      "response": {
+        "data": {
+          "function": "DTS",
+          "mode": 1
+        },
+        "request": "SOUND_MODE",
+        "result": "0"
+      }
+    },
+    "value": {
+      "availability": "available",
+      "preset": "movie"
+    }
+  },
+  "writable": false
+}

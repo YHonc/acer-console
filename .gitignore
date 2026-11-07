@@ -1,0 +1,30 @@
+target/
+node_modules/
+dist/
+*.log
+artifacts/
+待删除/
+待删除-*/
+_deleted/
+__pycache__/
+*.pyc
+/tools/reverse/venv/
+/apps/desktop/src-tauri/gen/schemas/
+
+# Official application extracts are research inputs, not our build output.
+!/references/research/reverse-continuation/official-app/dist/
+!/references/research/reverse-continuation/official-app/dist/**
+!/references/research/reverse-continuation/official-app/node_modules/
+!/references/research/reverse-continuation/official-app/node_modules/**
+
+# Third-party downloads kept locally only; sources and hashes in docs/第三方二进制本地位置.md.
+/vendor/PredatorLite/
+/tools/reverse/pawnio-2.2.0/PawnIO_setup.exe
+/tools/reverse/pawnio-2.2.0/release_0_2_11.zip
+/tools/reverse/pawnio-2.2.0/modules/
+/research/phn16-71-readonly-bridge/opencore/OpenCore-1.0.8-RELEASE.zip
+/research/phn16-71-readonly-bridge/opencore/ocvalidate.exe
+/research/phn16-71-readonly-bridge/opencore/**/*.efi
+
+# Device Center module builds go to artifacts/<name>/modules; old in-repo copy retired 2026-11-07.
+/modules/

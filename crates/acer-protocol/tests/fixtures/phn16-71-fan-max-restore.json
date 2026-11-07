@@ -1,0 +1,3267 @@
+{
+  "capabilities": {
+    "bios": "V1.18",
+    "items": [
+      {
+        "id": "temperature",
+        "readable": true,
+        "reason": "Read succeeded; mapping is from fixed reference and awaits official UI comparison. Hardware writes have not been validated.",
+        "status": "implemented_unverified",
+        "writable": false
+      },
+      {
+        "id": "fan_rpm",
+        "readable": true,
+        "reason": "Read succeeded; mapping is from fixed reference and awaits official UI comparison. Hardware writes have not been validated.",
+        "status": "implemented_unverified",
+        "writable": false
+      },
+      {
+        "id": "profile",
+        "readable": true,
+        "reason": "Read succeeded; mapping is from fixed reference and awaits official UI comparison. Hardware writes have not been validated.",
+        "status": "implemented_unverified",
+        "writable": false
+      },
+      {
+        "id": "fan_mode",
+        "readable": true,
+        "reason": "Read succeeded; mapping is from fixed reference and awaits official UI comparison. Hardware writes have not been validated.",
+        "status": "implemented_unverified",
+        "writable": false
+      },
+      {
+        "id": "lighting",
+        "readable": true,
+        "reason": "Read succeeded; mapping is from fixed reference and awaits official UI comparison. Hardware writes have not been validated.",
+        "status": "protocol_pending",
+        "writable": false
+      },
+      {
+        "id": "battery_care",
+        "readable": true,
+        "reason": "Read succeeded; mapping is from fixed reference and awaits official UI comparison. Hardware writes have not been validated.",
+        "status": "implemented_unverified",
+        "writable": false
+      }
+    ],
+    "matched_model": true,
+    "model": "Predator PHN16-71"
+  },
+  "command": "--validate-fan-max-restore",
+  "errors": [],
+  "finished_at_ms": 1793522040926,
+  "initial_snapshot": {
+    "ac_online": true,
+    "battery_care": false,
+    "battery_percent": 100,
+    "captured_at_ms": 1793522035874,
+    "cpu_fan_rpm": 3836.0,
+    "cpu_temperature_c": 82.0,
+    "fan_mode": "auto",
+    "gpu_fan_rpm": 3789.0,
+    "gpu_temperature_c": 65.0,
+    "lighting": {
+      "brightness": 0,
+      "zones": [
+        [
+          0,
+          174,
+          199
+        ],
+        [
+          0,
+          174,
+          199
+        ],
+        [
+          0,
+          174,
+          199
+        ],
+        [
+          0,
+          174,
+          199
+        ]
+      ]
+    },
+    "profile": "performance",
+    "reads": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "513"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "982016"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1537"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "969984"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "11"
+          }
+        },
+        "method": "GetGamingMiscSetting",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1024"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "256"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "8"
+          }
+        },
+        "method": "GetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "16384"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "gmReturn": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "2"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "4"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "8"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingLEDBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingLEDColor",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "10"
+          }
+        },
+        "method": "GetGamingMiscSetting",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "29440"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingFanSpeed",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "4"
+          }
+        },
+        "method": "GetGamingFanSpeed",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "BatteryControl",
+        "error": null,
+        "input": {
+          "uBatteryNo": {
+            "type": "unsigned",
+            "value": "1"
+          },
+          "uFunctionQuery": {
+            "type": "unsigned",
+            "value": "1"
+          },
+          "uReserved": {
+            "type": "bytes",
+            "value": [
+              0,
+              0
+            ]
+          }
+        },
+        "method": "GetBatteryHealthControlStatus",
+        "output": {
+          "uFunctionList": {
+            "type": "unsigned",
+            "value": "3"
+          },
+          "uFunctionStatus": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "uReturn": {
+            "type": "bytes",
+            "value": [
+              0,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "9"
+          }
+        },
+        "method": "GetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "16640"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "9244246016"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "257"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "20992"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "2561"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "16640"
+          }
+        }
+      },
+      {
+        "class": "BatteryStatus",
+        "error": null,
+        "input": {},
+        "method": "SELECT PowerOnline FROM BatteryStatus",
+        "output": {
+          "PowerOnline": {
+            "type": "bool",
+            "value": true
+          }
+        }
+      },
+      {
+        "class": "Win32_Battery",
+        "error": null,
+        "input": {},
+        "method": "SELECT EstimatedChargeRemaining FROM Win32_Battery",
+        "output": {
+          "EstimatedChargeRemaining": {
+            "type": "unsigned",
+            "value": "100"
+          }
+        }
+      }
+    ]
+  },
+  "max_apply": {
+    "after": {
+      "ac_online": true,
+      "battery_care": false,
+      "battery_percent": 100,
+      "captured_at_ms": 1793522036619,
+      "cpu_fan_rpm": 3836.0,
+      "cpu_temperature_c": 82.0,
+      "fan_mode": "max",
+      "gpu_fan_rpm": 3796.0,
+      "gpu_temperature_c": 65.0,
+      "lighting": {
+        "brightness": 0,
+        "zones": [
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ]
+        ]
+      },
+      "profile": "performance",
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "513"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "982016"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1537"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "971776"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "11"
+            }
+          },
+          "method": "GetGamingMiscSetting",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1024"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "512"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "32768"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingLEDBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingLEDColor",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "10"
+            }
+          },
+          "method": "GetGamingMiscSetting",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "29440"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingFanSpeed",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingFanSpeed",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "BatteryControl",
+          "error": null,
+          "input": {
+            "uBatteryNo": {
+              "type": "unsigned",
+              "value": "1"
+            },
+            "uFunctionQuery": {
+              "type": "unsigned",
+              "value": "1"
+            },
+            "uReserved": {
+              "type": "bytes",
+              "value": [
+                0,
+                0
+              ]
+            }
+          },
+          "method": "GetBatteryHealthControlStatus",
+          "output": {
+            "uFunctionList": {
+              "type": "unsigned",
+              "value": "3"
+            },
+            "uFunctionStatus": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "uReturn": {
+              "type": "bytes",
+              "value": [
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "9"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "33280"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "9244246016"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "257"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "20992"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2561"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "16640"
+            }
+          }
+        },
+        {
+          "class": "BatteryStatus",
+          "error": null,
+          "input": {},
+          "method": "SELECT PowerOnline FROM BatteryStatus",
+          "output": {
+            "PowerOnline": {
+              "type": "bool",
+              "value": true
+            }
+          }
+        },
+        {
+          "class": "Win32_Battery",
+          "error": null,
+          "input": {},
+          "method": "SELECT EstimatedChargeRemaining FROM Win32_Battery",
+          "output": {
+            "EstimatedChargeRemaining": {
+              "type": "unsigned",
+              "value": "100"
+            }
+          }
+        }
+      ]
+    },
+    "before": {
+      "ac_online": true,
+      "battery_care": false,
+      "battery_percent": 100,
+      "captured_at_ms": 1793522036213,
+      "cpu_fan_rpm": 3836.0,
+      "cpu_temperature_c": 82.0,
+      "fan_mode": "auto",
+      "gpu_fan_rpm": 3789.0,
+      "gpu_temperature_c": 65.0,
+      "lighting": {
+        "brightness": 0,
+        "zones": [
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ]
+        ]
+      },
+      "profile": "performance",
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "513"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "982016"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1537"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "969984"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "11"
+            }
+          },
+          "method": "GetGamingMiscSetting",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1024"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "256"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "16384"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingLEDBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingLEDColor",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "10"
+            }
+          },
+          "method": "GetGamingMiscSetting",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "29440"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingFanSpeed",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingFanSpeed",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "BatteryControl",
+          "error": null,
+          "input": {
+            "uBatteryNo": {
+              "type": "unsigned",
+              "value": "1"
+            },
+            "uFunctionQuery": {
+              "type": "unsigned",
+              "value": "1"
+            },
+            "uReserved": {
+              "type": "bytes",
+              "value": [
+                0,
+                0
+              ]
+            }
+          },
+          "method": "GetBatteryHealthControlStatus",
+          "output": {
+            "uFunctionList": {
+              "type": "unsigned",
+              "value": "3"
+            },
+            "uFunctionStatus": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "uReturn": {
+              "type": "bytes",
+              "value": [
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "9"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "16640"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "9244246016"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "257"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "20992"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2561"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "16640"
+            }
+          }
+        },
+        {
+          "class": "BatteryStatus",
+          "error": null,
+          "input": {},
+          "method": "SELECT PowerOnline FROM BatteryStatus",
+          "output": {
+            "PowerOnline": {
+              "type": "bool",
+              "value": true
+            }
+          }
+        },
+        {
+          "class": "Win32_Battery",
+          "error": null,
+          "input": {},
+          "method": "SELECT EstimatedChargeRemaining FROM Win32_Battery",
+          "output": {
+            "EstimatedChargeRemaining": {
+              "type": "unsigned",
+              "value": "100"
+            }
+          }
+        }
+      ]
+    },
+    "message": "Write transport completed; raw firmware status and readback require supervised validation",
+    "status": "unconfirmed",
+    "writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "8519689"
+          }
+        },
+        "method": "SetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ]
+  },
+  "max_call_attempted": true,
+  "max_readback_confirmed": true,
+  "max_settled_snapshot": {
+    "ac_online": true,
+    "battery_care": false,
+    "battery_percent": 100,
+    "captured_at_ms": 1793522039923,
+    "cpu_fan_rpm": 7435.0,
+    "cpu_temperature_c": 81.0,
+    "fan_mode": "max",
+    "gpu_fan_rpm": 6534.0,
+    "gpu_temperature_c": 64.0,
+    "lighting": {
+      "brightness": 0,
+      "zones": [
+        [
+          0,
+          174,
+          199
+        ],
+        [
+          0,
+          174,
+          199
+        ],
+        [
+          0,
+          174,
+          199
+        ],
+        [
+          0,
+          174,
+          199
+        ]
+      ]
+    },
+    "profile": "performance",
+    "reads": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "513"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1903360"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1537"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1672704"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "11"
+          }
+        },
+        "method": "GetGamingMiscSetting",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1024"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "512"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "8"
+          }
+        },
+        "method": "GetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "32768"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "gmReturn": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "2"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "4"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "8"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingLEDBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingLEDColor",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "10"
+          }
+        },
+        "method": "GetGamingMiscSetting",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "29440"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingFanSpeed",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "4"
+          }
+        },
+        "method": "GetGamingFanSpeed",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "BatteryControl",
+        "error": null,
+        "input": {
+          "uBatteryNo": {
+            "type": "unsigned",
+            "value": "1"
+          },
+          "uFunctionQuery": {
+            "type": "unsigned",
+            "value": "1"
+          },
+          "uReserved": {
+            "type": "bytes",
+            "value": [
+              0,
+              0
+            ]
+          }
+        },
+        "method": "GetBatteryHealthControlStatus",
+        "output": {
+          "uFunctionList": {
+            "type": "unsigned",
+            "value": "3"
+          },
+          "uFunctionStatus": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "uReturn": {
+            "type": "bytes",
+            "value": [
+              0,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "9"
+          }
+        },
+        "method": "GetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "33280"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "9244246016"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "257"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "20736"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "2561"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "16384"
+          }
+        }
+      },
+      {
+        "class": "BatteryStatus",
+        "error": null,
+        "input": {},
+        "method": "SELECT PowerOnline FROM BatteryStatus",
+        "output": {
+          "PowerOnline": {
+            "type": "bool",
+            "value": true
+          }
+        }
+      },
+      {
+        "class": "Win32_Battery",
+        "error": null,
+        "input": {},
+        "method": "SELECT EstimatedChargeRemaining FROM Win32_Battery",
+        "output": {
+          "EstimatedChargeRemaining": {
+            "type": "unsigned",
+            "value": "100"
+          }
+        }
+      }
+    ]
+  },
+  "message": "Max and saved original mode were observed in readback; this records one supervised validation run",
+  "original_mode": "auto",
+  "outcome": "readbacks_confirmed",
+  "restore_apply": {
+    "after": {
+      "ac_online": true,
+      "battery_care": false,
+      "battery_percent": 100,
+      "captured_at_ms": 1793522040603,
+      "cpu_fan_rpm": 7435.0,
+      "cpu_temperature_c": 81.0,
+      "fan_mode": "auto",
+      "gpu_fan_rpm": 6553.0,
+      "gpu_temperature_c": 64.0,
+      "lighting": {
+        "brightness": 0,
+        "zones": [
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ]
+        ]
+      },
+      "profile": "performance",
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "513"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1903360"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1537"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1677568"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "11"
+            }
+          },
+          "method": "GetGamingMiscSetting",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1024"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "256"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "16384"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingLEDBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingLEDColor",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "10"
+            }
+          },
+          "method": "GetGamingMiscSetting",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "29440"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingFanSpeed",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingFanSpeed",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "BatteryControl",
+          "error": null,
+          "input": {
+            "uBatteryNo": {
+              "type": "unsigned",
+              "value": "1"
+            },
+            "uFunctionQuery": {
+              "type": "unsigned",
+              "value": "1"
+            },
+            "uReserved": {
+              "type": "bytes",
+              "value": [
+                0,
+                0
+              ]
+            }
+          },
+          "method": "GetBatteryHealthControlStatus",
+          "output": {
+            "uFunctionList": {
+              "type": "unsigned",
+              "value": "3"
+            },
+            "uFunctionStatus": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "uReturn": {
+              "type": "bytes",
+              "value": [
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "9"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "16640"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "9244246016"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "257"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "20736"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2561"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "16384"
+            }
+          }
+        },
+        {
+          "class": "BatteryStatus",
+          "error": null,
+          "input": {},
+          "method": "SELECT PowerOnline FROM BatteryStatus",
+          "output": {
+            "PowerOnline": {
+              "type": "bool",
+              "value": true
+            }
+          }
+        },
+        {
+          "class": "Win32_Battery",
+          "error": null,
+          "input": {},
+          "method": "SELECT EstimatedChargeRemaining FROM Win32_Battery",
+          "output": {
+            "EstimatedChargeRemaining": {
+              "type": "unsigned",
+              "value": "100"
+            }
+          }
+        }
+      ]
+    },
+    "before": {
+      "ac_online": true,
+      "battery_care": false,
+      "battery_percent": 100,
+      "captured_at_ms": 1793522040237,
+      "cpu_fan_rpm": 7435.0,
+      "cpu_temperature_c": 81.0,
+      "fan_mode": "max",
+      "gpu_fan_rpm": 6553.0,
+      "gpu_temperature_c": 64.0,
+      "lighting": {
+        "brightness": 0,
+        "zones": [
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ],
+          [
+            0,
+            174,
+            199
+          ]
+        ]
+      },
+      "profile": "performance",
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "513"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1903360"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1537"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1677568"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "11"
+            }
+          },
+          "method": "GetGamingMiscSetting",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1024"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "512"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "32768"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingLEDBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingLEDColor",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "10"
+            }
+          },
+          "method": "GetGamingMiscSetting",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "29440"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingFanSpeed",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingFanSpeed",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "BatteryControl",
+          "error": null,
+          "input": {
+            "uBatteryNo": {
+              "type": "unsigned",
+              "value": "1"
+            },
+            "uFunctionQuery": {
+              "type": "unsigned",
+              "value": "1"
+            },
+            "uReserved": {
+              "type": "bytes",
+              "value": [
+                0,
+                0
+              ]
+            }
+          },
+          "method": "GetBatteryHealthControlStatus",
+          "output": {
+            "uFunctionList": {
+              "type": "unsigned",
+              "value": "3"
+            },
+            "uFunctionStatus": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "uReturn": {
+              "type": "bytes",
+              "value": [
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "9"
+            }
+          },
+          "method": "GetGamingFanBehavior",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "33280"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "9244246016"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "257"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "20736"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2561"
+            }
+          },
+          "method": "GetGamingSysInfo",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "16384"
+            }
+          }
+        },
+        {
+          "class": "BatteryStatus",
+          "error": null,
+          "input": {},
+          "method": "SELECT PowerOnline FROM BatteryStatus",
+          "output": {
+            "PowerOnline": {
+              "type": "bool",
+              "value": true
+            }
+          }
+        },
+        {
+          "class": "Win32_Battery",
+          "error": null,
+          "input": {},
+          "method": "SELECT EstimatedChargeRemaining FROM Win32_Battery",
+          "output": {
+            "EstimatedChargeRemaining": {
+              "type": "unsigned",
+              "value": "100"
+            }
+          }
+        }
+      ]
+    },
+    "message": "Attempted restoration to the saved pre-validation fan mode; inspect raw write and readback",
+    "status": "unconfirmed",
+    "writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "4259849"
+          }
+        },
+        "method": "SetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ]
+  },
+  "restore_call_attempted": true,
+  "restore_readback_confirmed": true,
+  "restored_snapshot": {
+    "ac_online": true,
+    "battery_care": false,
+    "battery_percent": 100,
+    "captured_at_ms": 1793522040926,
+    "cpu_fan_rpm": 7409.0,
+    "cpu_temperature_c": 80.0,
+    "fan_mode": "auto",
+    "gpu_fan_rpm": 6534.0,
+    "gpu_temperature_c": 64.0,
+    "lighting": {
+      "brightness": 0,
+      "zones": [
+        [
+          0,
+          174,
+          199
+        ],
+        [
+          0,
+          174,
+          199
+        ],
+        [
+          0,
+          174,
+          199
+        ],
+        [
+          0,
+          174,
+          199
+        ]
+      ]
+    },
+    "profile": "performance",
+    "reads": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "513"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1896704"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1537"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1672704"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "11"
+          }
+        },
+        "method": "GetGamingMiscSetting",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1024"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "256"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "8"
+          }
+        },
+        "method": "GetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "16384"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "gmReturn": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "2"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "4"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "8"
+          }
+        },
+        "method": "GetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "3350069248"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingLEDBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingLEDColor",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "10"
+          }
+        },
+        "method": "GetGamingMiscSetting",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "29440"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "1"
+          }
+        },
+        "method": "GetGamingFanSpeed",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "4"
+          }
+        },
+        "method": "GetGamingFanSpeed",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "BatteryControl",
+        "error": null,
+        "input": {
+          "uBatteryNo": {
+            "type": "unsigned",
+            "value": "1"
+          },
+          "uFunctionQuery": {
+            "type": "unsigned",
+            "value": "1"
+          },
+          "uReserved": {
+            "type": "bytes",
+            "value": [
+              0,
+              0
+            ]
+          }
+        },
+        "method": "GetBatteryHealthControlStatus",
+        "output": {
+          "uFunctionList": {
+            "type": "unsigned",
+            "value": "3"
+          },
+          "uFunctionStatus": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "uReturn": {
+            "type": "bytes",
+            "value": [
+              0,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "9"
+          }
+        },
+        "method": "GetGamingFanBehavior",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "16640"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "9244246016"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "257"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "20480"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "2561"
+          }
+        },
+        "method": "GetGamingSysInfo",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "16384"
+          }
+        }
+      },
+      {
+        "class": "BatteryStatus",
+        "error": null,
+        "input": {},
+        "method": "SELECT PowerOnline FROM BatteryStatus",
+        "output": {
+          "PowerOnline": {
+            "type": "bool",
+            "value": true
+          }
+        }
+      },
+      {
+        "class": "Win32_Battery",
+        "error": null,
+        "input": {},
+        "method": "SELECT EstimatedChargeRemaining FROM Win32_Battery",
+        "output": {
+          "EstimatedChargeRemaining": {
+            "type": "unsigned",
+            "value": "100"
+          }
+        }
+      }
+    ]
+  },
+  "schema_version": 1,
+  "settle_ms": 3000,
+  "started_at_ms": 1793522035180
+}

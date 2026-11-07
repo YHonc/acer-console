@@ -1,0 +1,3579 @@
+[
+  {
+    "source": "evidence\\lighting-effect-1-restore.json",
+    "code": 1,
+    "outcome": "readbacks_confirmed",
+    "target_readback_confirmed": true,
+    "restore_readback_confirmed": true,
+    "before": {
+      "captured_at_ms": 1793528770797,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    },
+    "after": {
+      "captured_at_ms": 1793528773373,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                1,
+                3,
+                20,
+                0,
+                1,
+                255,
+                128,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        }
+      ]
+    },
+    "writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              1,
+              3,
+              20,
+              0,
+              1,
+              255,
+              128,
+              0,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restore_writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069249"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069250"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069252"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069256"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restored": {
+      "captured_at_ms": 1793528774314,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "source": "evidence\\lighting-effect-2-restore.json",
+    "code": 2,
+    "outcome": "readbacks_confirmed",
+    "target_readback_confirmed": true,
+    "restore_readback_confirmed": true,
+    "before": {
+      "captured_at_ms": 1793528792654,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    },
+    "after": {
+      "captured_at_ms": 1793528795234,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                2,
+                3,
+                20,
+                0,
+                1,
+                0,
+                0,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        }
+      ]
+    },
+    "writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              2,
+              3,
+              20,
+              0,
+              1,
+              0,
+              0,
+              0,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restore_writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069249"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069250"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069252"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069256"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restored": {
+      "captured_at_ms": 1793528796181,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "source": "evidence\\lighting-effect-3-restore.json",
+    "code": 3,
+    "outcome": "readbacks_confirmed",
+    "target_readback_confirmed": true,
+    "restore_readback_confirmed": true,
+    "before": {
+      "captured_at_ms": 1793528797585,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    },
+    "after": {
+      "captured_at_ms": 1793528800181,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                3,
+                3,
+                20,
+                0,
+                1,
+                0,
+                0,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        }
+      ]
+    },
+    "writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              3,
+              3,
+              20,
+              0,
+              1,
+              0,
+              0,
+              0,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restore_writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069249"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069250"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069252"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069256"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restored": {
+      "captured_at_ms": 1793528801198,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "source": "evidence\\lighting-effect-4-restore.json",
+    "code": 4,
+    "outcome": "readbacks_confirmed",
+    "target_readback_confirmed": true,
+    "restore_readback_confirmed": true,
+    "before": {
+      "captured_at_ms": 1793528802718,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    },
+    "after": {
+      "captured_at_ms": 1793528805318,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                4,
+                3,
+                20,
+                0,
+                1,
+                255,
+                128,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        }
+      ]
+    },
+    "writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              4,
+              3,
+              20,
+              0,
+              1,
+              255,
+              128,
+              0,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restore_writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069249"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069250"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069252"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069256"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restored": {
+      "captured_at_ms": 1793528806290,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "source": "evidence\\lighting-effect-5-restore.json",
+    "code": 5,
+    "outcome": "readbacks_confirmed",
+    "target_readback_confirmed": true,
+    "restore_readback_confirmed": true,
+    "before": {
+      "captured_at_ms": 1793528807671,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    },
+    "after": {
+      "captured_at_ms": 1793528810244,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                5,
+                3,
+                20,
+                0,
+                1,
+                255,
+                128,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        }
+      ]
+    },
+    "writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              5,
+              3,
+              20,
+              0,
+              1,
+              255,
+              128,
+              0,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restore_writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069249"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069250"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069252"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069256"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restored": {
+      "captured_at_ms": 1793528811210,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "source": "evidence\\lighting-effect-6-restore.json",
+    "code": 6,
+    "outcome": "readbacks_confirmed",
+    "target_readback_confirmed": true,
+    "restore_readback_confirmed": true,
+    "before": {
+      "captured_at_ms": 1793528812593,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    },
+    "after": {
+      "captured_at_ms": 1793528815198,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                6,
+                3,
+                20,
+                0,
+                1,
+                255,
+                128,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        }
+      ]
+    },
+    "writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              6,
+              3,
+              20,
+              0,
+              1,
+              255,
+              128,
+              0,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restore_writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069249"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069250"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069252"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069256"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restored": {
+      "captured_at_ms": 1793528816154,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "source": "evidence\\lighting-effect-7-restore.json",
+    "code": 7,
+    "outcome": "readbacks_confirmed",
+    "target_readback_confirmed": true,
+    "restore_readback_confirmed": true,
+    "before": {
+      "captured_at_ms": 1793528817550,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    },
+    "after": {
+      "captured_at_ms": 1793528820157,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                7,
+                3,
+                20,
+                0,
+                1,
+                255,
+                128,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "8453888"
+            }
+          }
+        }
+      ]
+    },
+    "writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              7,
+              3,
+              20,
+              0,
+              1,
+              255,
+              128,
+              0,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restore_writes": [
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069249"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069250"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069252"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "3350069256"
+          }
+        },
+        "method": "SetGamingRgbKb",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      },
+      {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "bytes",
+            "value": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              174,
+              199,
+              3,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "method": "SetGamingKBBacklight",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        }
+      }
+    ],
+    "restored": {
+      "captured_at_ms": 1793528821090,
+      "reads": [
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingKBBacklight",
+          "output": {
+            "gmOutput": {
+              "type": "bytes",
+              "value": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                174,
+                199,
+                3,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "gmReturn": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "1"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "2"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "4"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        },
+        {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "8"
+            }
+          },
+          "method": "GetGamingRgbKb",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "3350069248"
+            }
+          }
+        }
+      ]
+    }
+  }
+]

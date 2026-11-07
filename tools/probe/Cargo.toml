@@ -1,0 +1,12 @@
+[package]
+name = "acer-probe"
+version = "0.1.0"
+edition = "2021"
+default-run = "acer-probe"
+
+[dependencies]
+acer-device = { path = "../../crates/acer-device" }
+acer-protocol = { path = "../../crates/acer-protocol" }
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "device-center",
+  "name": "Device Center",
+  "version": "0.1.1",
+  "entry": "DeviceCenter.exe",
+  "files": [
+    { "path": "DeviceCenter.exe", "sha256": "0000000000000000000000000000000000000000000000000000000000000000" },
+    { "path": "WebView2Loader.dll", "sha256": "0000000000000000000000000000000000000000000000000000000000000000" }
+  ]
+}

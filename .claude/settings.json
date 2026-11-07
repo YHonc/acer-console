@@ -1,0 +1,57 @@
+{
+  "enabledPlugins": {
+    "rust-analyzer-lsp@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(rtk *)",
+      "Bash(git status*)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git branch*)",
+      "Bash(git worktree list*)",
+      "Bash(cargo test *)",
+      "Bash(cargo build *)",
+      "Bash(cargo check *)",
+      "Bash(npm ci*)",
+      "Bash(npm run check*)",
+      "Bash(npm run build*)",
+      "Bash(python design/apple-redesign-20261105/check_*.py*)",
+      "Bash(python -I .claude/hooks/test_guard.py*)",
+      "Bash(python -I .claude/hooks/session_context.py*)",
+      "Bash(bash work/prompts/run.sh * reads *)",
+      "Bash(/d/codeg/bin/codeg-cli.exe --help*)",
+      "Bash(/d/codeg/bin/codeg-cli.exe status*)",
+      "Bash(/d/codeg/bin/codeg-cli.exe agents*)",
+      "Bash(/d/codeg/bin/codeg-cli.exe assistants*)",
+      "Bash(/d/codeg/bin/codeg-cli.exe run * --permissions reads *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -I \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -I \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_context.py\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

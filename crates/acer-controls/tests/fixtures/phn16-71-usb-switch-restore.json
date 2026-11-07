@@ -1,0 +1,178 @@
+﻿{
+  "message": "Original USB pair restoration is unconfirmed; keep this report for explicit recovery",
+  "original": {
+    "ack": "confirmed",
+    "decoded_state": {
+      "enabled": true,
+      "threshold": 30
+    },
+    "raw": {
+      "class": "APGeAction",
+      "error": null,
+      "input": {
+        "uiInput": {
+          "type": "unsigned",
+          "value": "4"
+        }
+      },
+      "method": "GetFunction",
+      "output": {
+        "uiOutput": {
+          "type": "unsigned",
+          "value": "1969920"
+        }
+      }
+    },
+    "state": {
+      "enabled": true,
+      "threshold": 30
+    }
+  },
+  "restore": {
+    "after": {
+      "ack": "confirmed",
+      "decoded_state": {
+        "enabled": true,
+        "threshold": 30
+      },
+      "raw": {
+        "class": "APGeAction",
+        "error": null,
+        "input": {
+          "uiInput": {
+            "type": "unsigned",
+            "value": "4"
+          }
+        },
+        "method": "GetFunction",
+        "output": {
+          "uiOutput": {
+            "type": "unsigned",
+            "value": "1969920"
+          }
+        }
+      },
+      "state": {
+        "enabled": true,
+        "threshold": 30
+      }
+    },
+    "before": null,
+    "message": "USB write/readback is unconfirmed; no implicit ReturnValue success",
+    "status": "unconfirmed",
+    "target": {
+      "enabled": true,
+      "threshold": 30
+    },
+    "writes": [
+      {
+        "attempted": true,
+        "raw": {
+          "class": "APGeAction",
+          "error": null,
+          "input": {
+            "uiInput": {
+              "type": "unsigned",
+              "value": "1969924"
+            }
+          },
+          "method": "SetFunction",
+          "output": {
+            "uiOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "restore_required": true,
+  "restored": false,
+  "trial": {
+    "after": {
+      "ack": "confirmed",
+      "decoded_state": {
+        "enabled": false,
+        "threshold": 30
+      },
+      "raw": {
+        "class": "APGeAction",
+        "error": null,
+        "input": {
+          "uiInput": {
+            "type": "unsigned",
+            "value": "4"
+          }
+        },
+        "method": "GetFunction",
+        "output": {
+          "uiOutput": {
+            "type": "unsigned",
+            "value": "1974016"
+          }
+        }
+      },
+      "state": {
+        "enabled": false,
+        "threshold": 30
+      }
+    },
+    "before": {
+      "ack": "confirmed",
+      "decoded_state": {
+        "enabled": true,
+        "threshold": 30
+      },
+      "raw": {
+        "class": "APGeAction",
+        "error": null,
+        "input": {
+          "uiInput": {
+            "type": "unsigned",
+            "value": "4"
+          }
+        },
+        "method": "GetFunction",
+        "output": {
+          "uiOutput": {
+            "type": "unsigned",
+            "value": "1969920"
+          }
+        }
+      },
+      "state": {
+        "enabled": true,
+        "threshold": 30
+      }
+    },
+    "message": "USB write/readback is unconfirmed; no implicit ReturnValue success",
+    "status": "unconfirmed",
+    "target": {
+      "enabled": false,
+      "threshold": 30
+    },
+    "writes": [
+      {
+        "attempted": true,
+        "raw": {
+          "class": "APGeAction",
+          "error": null,
+          "input": {
+            "uiInput": {
+              "type": "unsigned",
+              "value": "1974020"
+            }
+          },
+          "method": "SetFunction",
+          "output": {
+            "uiOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

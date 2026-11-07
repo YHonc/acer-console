@@ -1,0 +1,12 @@
+{
+  "ack": "unknown",
+  "decoded_state": { "enabled": true, "threshold": 30 },
+  "raw": {
+    "class": "APGeAction",
+    "error": null,
+    "input": { "uiInput": { "type": "unsigned", "value": "4" } },
+    "method": "GetFunction",
+    "output": { "uiOutput": { "type": "unsigned", "value": "1969920" } }
+  },
+  "state": null
+}

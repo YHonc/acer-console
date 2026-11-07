@@ -1,0 +1,2297 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acer Console · UI 重构预览 2026-11-05</title>
+<script>
+/* 首帧前确定侧栏状态，避免闪动：窄窗口自动收起，否则沿用手动选择 */
+(function () { var s = 'expanded'; try { s = localStorage.getItem('acer-preview-sidebar') || s; } catch (e) {} if (innerWidth < 900) s = 'collapsed'; document.documentElement.dataset.side = s; })();
+</script>
+<style>
+/* ===================== 1. 设计令牌 ===================== */
+:root{
+  color-scheme: light;
+  --ts: 1; /* 预览慢放倍率，正式版固定为 1 */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif;
+  --mono: "SF Mono", "Cascadia Mono", Consolas, monospace;
+
+  --bg: #f5f5f7;
+  --sidebar: rgba(232,232,237,.66);
+  --toolbar: rgba(245,245,247,.78);
+  --surface: #ffffff;
+  --surface-hover: #fafafc;
+  --elevated: rgba(255,255,255,.82);
+  --fill: rgba(118,118,128,.12);
+  --fill-2: rgba(118,118,128,.08);
+  --fill-strong: rgba(120,120,128,.2);
+  --label: #1d1d1f;
+  --label-2: rgba(60,60,67,.66);
+  --label-3: rgba(60,60,67,.36);
+  --sep: rgba(60,60,67,.14);
+  --accent: #0071e3;
+  --accent-press: #0062c4;
+  --accent-soft: rgba(0,113,227,.10);
+  --focus: rgba(0,113,227,.42);
+  --green: #34c759;  --green-text: #1f8a3b;  --green-soft: rgba(52,199,89,.14);
+  --orange: #ff9500; --orange-text: #b25000; --orange-soft: rgba(255,149,0,.14);
+  --orange-wash: rgba(255,149,0,.07);
+  --red: #ff3b30;    --red-text: #d70015;    --red-soft: rgba(255,59,48,.12);
+  --indigo: #5856d6;
+  --thumb: #ffffff;
+  --shadow-card: 0 0 0 .5px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-thumb: 0 0 0 .5px rgba(0,0,0,.04), 0 2px 6px rgba(0,0,0,.12);
+  --shadow-float: 0 0 0 .5px rgba(0,0,0,.06), 0 10px 30px rgba(0,0,0,.12), 0 30px 80px rgba(0,0,0,.10);
+  --r-card: 14px; --r-ctl: 8px;
+
+  /* 弹簧曲线：阻尼比 ζ 与响应时间 response 计算的 linear()；时长为收敛到 0.2% 的时间 */
+  --spring-snappy: linear(0, 0.033, 0.111, 0.213, 0.322, 0.431, 0.532, 0.622, 0.7, 0.766, 0.821, 0.865, 0.901, 0.928, 0.95, 0.966, 0.978, 0.987, 0.993, 0.997, 1, 1.001, 1.002, 1.003, 1.003, 1.003, 1.003, 1.002, 1);
+  --spring-smooth: linear(0, 0.038, 0.125, 0.233, 0.345, 0.451, 0.547, 0.63, 0.701, 0.76, 0.809, 0.849, 0.881, 0.906, 0.927, 0.943, 0.956, 0.966, 0.973, 0.979, 0.984, 0.988, 0.991, 0.993, 0.995, 0.996, 0.997, 0.998, 1);
+  --spring-bouncy: linear(0, 0.039, 0.136, 0.263, 0.402, 0.538, 0.663, 0.77, 0.859, 0.928, 0.979, 1.015, 1.037, 1.05, 1.054, 1.053, 1.049, 1.042, 1.035, 1.027, 1.02, 1.014, 1.009, 1.005, 1.002, 1, 0.998, 0.997, 0.997, 0.997, 0.997, 0.998, 1);
+  --spring-gentle: var(--spring-smooth);
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
+  --d-press: calc(90ms * var(--ts));
+  --d-fast: calc(160ms * var(--ts));
+  --d-base: calc(240ms * var(--ts));
+  --d-snappy: calc(370ms * var(--ts));
+  --d-smooth: calc(490ms * var(--ts));
+  --d-bouncy: calc(550ms * var(--ts));
+  --d-gentle: calc(680ms * var(--ts));
+  --side-w: 232px;
+  --sb-thumb: rgba(0,0,0,.34); --sb-thumb-hover: rgba(0,0,0,.5); --sb-track: rgba(0,0,0,.035);
+  --menu-bg: rgba(246,246,248,.8);
+  --shadow-menu: 0 0 0 .5px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.08), 0 16px 40px rgba(0,0,0,.16);
+}
+html[data-side="collapsed"]{--side-w:64px}
+html[data-theme="dark"]{
+  color-scheme: dark;
+  --bg: #161617;
+  --sidebar: rgba(38,38,42,.66);
+  --toolbar: rgba(22,22,23,.78);
+  --surface: #1f1f21;
+  --surface-hover: #242427;
+  --elevated: rgba(44,44,48,.84);
+  --fill: rgba(118,118,128,.24);
+  --fill-2: rgba(118,118,128,.16);
+  --fill-strong: rgba(120,120,128,.36);
+  --label: #f5f5f7;
+  --label-2: rgba(235,235,245,.62);
+  --label-3: rgba(235,235,245,.32);
+  --sep: rgba(84,84,88,.55);
+  --accent: #0a84ff; --accent-press: #3395ff; --accent-soft: rgba(10,132,255,.18); --focus: rgba(10,132,255,.55);
+  --green: #30d158; --green-text: #30d158; --green-soft: rgba(48,209,88,.16);
+  --orange: #ff9f0a; --orange-text: #ffb340; --orange-soft: rgba(255,159,10,.16);
+  --orange-wash: rgba(255,159,10,.09);
+  --red: #ff453a; --red-text: #ff6961; --red-soft: rgba(255,69,58,.16);
+  --indigo: #7d7aff;
+  --thumb: #636366;
+  --shadow-card: 0 0 0 .5px rgba(255,255,255,.06);
+  --shadow-thumb: 0 0 0 .5px rgba(0,0,0,.2), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-float: 0 0 0 .5px rgba(255,255,255,.1), 0 12px 36px rgba(0,0,0,.5);
+  --sb-thumb: rgba(255,255,255,.3); --sb-thumb-hover: rgba(255,255,255,.48); --sb-track: rgba(255,255,255,.05);
+  --menu-bg: rgba(42,42,46,.78);
+  --shadow-menu: 0 0 0 .5px rgba(255,255,255,.14), 0 0 0 1px rgba(0,0,0,.5), 0 16px 40px rgba(0,0,0,.55);
+}
+
+/* ===================== 2. 基础 ===================== */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--label);font-family:var(--font);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus{outline:none}
+:focus-visible{outline:none;box-shadow:0 0 0 3px var(--focus)!important;border-radius:var(--r-ctl)}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+[hidden]{display:none!important}
+.tnum{font-variant-numeric:tabular-nums}
+.muted{color:var(--label-2)}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:12px;top:12px;z-index:99;background:var(--surface);padding:8px 12px;border-radius:8px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* 覆盖式滚动条：隐藏原生条，由 .sb 浮层绘制（理由见 README） */
+*{scrollbar-width:none}
+::-webkit-scrollbar{width:0;height:0}
+.sb{position:fixed;z-index:85;top:0;left:0;width:14px;border-radius:7px;opacity:0;pointer-events:none;transition:opacity calc(200ms * var(--ts)) var(--ease-in),background-color var(--d-fast) var(--ease-out)}
+.sb.on{opacity:1;pointer-events:auto;transition:opacity var(--d-fast) var(--ease-out),background-color var(--d-fast) var(--ease-out)}
+.sb:hover,.sb.drag{background:var(--sb-track)}
+.sb-thumb{position:absolute;top:0;right:3px;width:6px;border-radius:5px;background:var(--sb-thumb);transition:width var(--d-snappy) var(--spring-snappy),background-color var(--d-fast) var(--ease-out)}
+.sb:hover .sb-thumb,.sb.drag .sb-thumb{width:10px;background:var(--sb-thumb-hover)}
+
+/* ===================== 3. 框架：侧栏 + 工具栏 ===================== */
+.app{display:grid;grid-template-columns:var(--side-w) minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:100vh;transition:grid-template-columns var(--d-smooth) var(--spring-smooth)}
+.sidebar{position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden;padding:16px 12px 14px;background:var(--sidebar);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border-right:.5px solid var(--sep);-webkit-app-region:drag}
+.sidebar > *{-webkit-app-region:no-drag}
+.brand{display:flex;align-items:center;gap:10px;min-height:54px;padding:6px 44px 18px 8px;white-space:nowrap}
+.brand-text{min-width:0;overflow:hidden}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(145deg,#2b2b2f,#0d0d0f);display:grid;place-items:center;color:#7ee0ff;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.15)}
+.side-toggle{position:absolute;top:23px;right:18px;z-index:2;width:28px;height:28px;padding:0;border:0;border-radius:7px;background:none;color:var(--label-2);display:grid;place-items:center;transition:background-color var(--d-fast) var(--ease-out),color var(--d-fast),transform var(--d-snappy) var(--spring-snappy)}
+.side-toggle:hover{background:var(--fill-2);color:var(--label)}
+.side-toggle:active{transform:scale(.92);transition-duration:var(--d-press)}
+.side-toggle svg.i{width:17px;height:17px}
+.brand b{display:block;font-size:14px;font-weight:600;letter-spacing:-.01em}
+.brand small{display:block;font-size:11px;color:var(--label-2)}
+.nav{position:relative;display:grid;gap:2px}
+.nav-pill{position:absolute;left:0;right:0;top:0;height:36px;border-radius:9px;background:var(--surface);box-shadow:var(--shadow-thumb);transition:transform var(--d-snappy) var(--spring-snappy),height var(--d-snappy) var(--spring-snappy)}
+html[data-theme="dark"] .nav-pill{background:rgba(255,255,255,.1)}
+.nav button{position:relative;z-index:1;display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border:0;border-radius:9px;background:none;font-size:13px;font-weight:500;text-align:left;white-space:nowrap;overflow:hidden;transition:background-color var(--d-fast) var(--ease-out)}
+.nav button:hover:not([aria-current]){background:var(--fill-2)}
+.nav button:active{transform:scale(.98)}
+.sq{width:24px;height:24px;border-radius:6.5px;display:grid;place-items:center;color:#fff;flex:none;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.08)}
+.sq svg.i{width:15px;height:15px;stroke-width:2}
+.sq.blue{background:linear-gradient(180deg,#3b9bff,#0a6cf0)}
+.sq.orange{background:linear-gradient(180deg,#ffab3d,#ff8a00)}
+.sq.gray{background:linear-gradient(180deg,#9a9aa0,#76767c)}
+.sq.green{background:linear-gradient(180deg,#4cd964,#28b446)}
+.sq.indigo{background:linear-gradient(180deg,#7472f0,#4f4dd0)}
+.sq.pink{background:linear-gradient(180deg,#ff5a7e,#e9335c)}
+.sq.teal{background:linear-gradient(180deg,#4fc3f7,#1592d0)}
+.side-foot{display:grid;margin-top:auto;padding:12px 8px 0;border-top:.5px solid var(--sep);white-space:nowrap}
+.side-foot > *{grid-area:1/1;min-width:0}
+.side-foot b{display:block;font-size:12px;font-weight:600}
+.side-foot span{display:block;font-size:11px;color:var(--label-2)}
+.conn{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:var(--label-2)}
+.side-foot .foot-mini{display:grid;place-items:center;align-self:end;width:24px;height:22px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity calc(120ms * var(--ts)) var(--ease-in)}
+
+/* 侧栏收起：宽度用 smooth 弹簧，文字只淡出、不换行 */
+.nav .sub{height:32px;padding-left:24px;font-size:12.5px;transition:background-color var(--d-fast) var(--ease-out),padding var(--d-smooth) var(--spring-smooth),height var(--d-smooth) var(--spring-smooth),margin var(--d-smooth) var(--spring-smooth),opacity var(--d-base) var(--ease-out)}
+.nav .sub .sq{width:20px;height:20px;border-radius:5.5px}
+.nav .sub .sq svg.i{width:12px;height:12px}
+.nav .sub.gone{height:0;margin-top:-2px;opacity:0;pointer-events:none;transition:height calc(200ms * var(--ts)) var(--ease-in),margin calc(200ms * var(--ts)) var(--ease-in),opacity calc(120ms * var(--ts)) var(--ease-in)}
+.brand-mark,.brand-text,.nav button > span:not(.sq),.foot-full{transition:opacity calc(220ms * var(--ts)) var(--ease-out) calc(110ms * var(--ts))}
+html[data-side="collapsed"] :is(.brand-mark,.brand-text,.nav button > span:not(.sq),.foot-full){opacity:0;pointer-events:none;transition:opacity calc(120ms * var(--ts)) var(--ease-in)}
+html[data-side="collapsed"] .nav .sub{padding-left:10px}
+html[data-side="collapsed"] .side-foot .foot-mini{opacity:1;pointer-events:auto;transition:opacity var(--d-fast) var(--ease-out) calc(110ms * var(--ts))}
+.side-tip{position:fixed;z-index:90;top:0;left:0;padding:5px 10px;border-radius:8px;background:var(--elevated);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);box-shadow:var(--shadow-float);font-size:12px;font-weight:500;white-space:nowrap;pointer-events:none;opacity:0;transform:translate(-4px,-50%) scale(.96);transform-origin:left center;transition:opacity calc(120ms * var(--ts)) var(--ease-in),transform calc(120ms * var(--ts)) var(--ease-in)}
+.side-tip.on{opacity:1;transform:translate(0,-50%);transition:opacity var(--d-fast) var(--ease-out),transform var(--d-snappy) var(--spring-snappy)}
+
+.workspace{position:relative;min-width:0;display:flex;flex-direction:column}
+.toolbar{position:absolute;top:0;left:0;right:0;z-index:20;height:52px;display:flex;align-items:center;gap:8px;padding:0 0 0 28px;-webkit-app-region:drag;transition:background-color var(--d-base) var(--ease-out),box-shadow var(--d-base) var(--ease-out)}
+.toolbar > *{-webkit-app-region:no-drag}
+.toolbar.scrolled{background:var(--toolbar);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);box-shadow:0 .5px 0 var(--sep)}
+.tb-title{font-size:14px;font-weight:600;margin-right:auto;opacity:0;transform:translateY(4px);transition:opacity var(--d-fast) var(--ease-out),transform var(--d-snappy) var(--spring-snappy);-webkit-app-region:drag}
+.toolbar.scrolled .tb-title{opacity:1;transform:none}
+.winctl{display:flex;align-self:stretch;margin-left:8px}
+.winctl button{width:46px;border:0;background:none;color:var(--label-2);display:grid;place-items:center;transition:background-color var(--d-fast) var(--ease-out),color var(--d-fast)}
+.winctl button:hover{background:var(--fill-2);color:var(--label)}
+.winctl button.close:hover{background:#e81123;color:#fff}
+.winctl svg{width:10px;height:10px;stroke:currentColor;stroke-width:1;fill:none}
+
+.main{flex:1;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
+.content{max-width:800px;margin:0 auto;padding:60px 40px 40px}
+
+/* ===================== 4. 基础控件 ===================== */
+.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:13px;background:var(--fill-2);font-size:12px;font-weight:500;color:var(--label-2);white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--label-3);flex:none;transition:background-color var(--d-base) var(--ease-out),box-shadow var(--d-base)}
+.ok .dot,.dot.ok{background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+.wn .dot,.dot.wn{background:var(--orange);box-shadow:0 0 0 3px var(--orange-soft)}
+.er .dot,.dot.er{background:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:30px;padding:0 14px;border:0;border-radius:15px;background:var(--fill);font-size:13px;font-weight:500;white-space:nowrap;transition:background-color var(--d-fast) var(--ease-out),opacity var(--d-fast),transform var(--d-snappy) var(--spring-snappy)}
+.btn:hover:not(:disabled){background:var(--fill-strong)}
+.btn:active:not(:disabled){transform:scale(.96);transition-duration:var(--d-press)}
+.btn:disabled{opacity:.38;cursor:default}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover:not(:disabled){background:var(--accent-press)}
+.btn.danger{color:var(--red-text)}
+.btn.plain{background:none;color:var(--accent);padding:0 6px}
+.btn.plain:hover:not(:disabled){background:var(--accent-soft)}
+.btn.icon{width:30px;padding:0}
+.btn .label-swap{display:grid}
+.btn .label-swap > *{grid-area:1/1;transition:opacity var(--d-fast) var(--ease-out),transform var(--d-snappy) var(--spring-snappy)}
+.spinner{width:12px;height:12px;border-radius:50%;border:1.6px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+#refresh-btn.syncing #refresh-ico{animation:spin .9s linear infinite}
+
+.tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:10px;font-size:11px;font-weight:500;background:var(--fill-2);color:var(--label-2);white-space:nowrap}
+.tag.ok{background:var(--green-soft);color:var(--green-text)}
+.tag.draft{background:var(--orange-soft);color:var(--orange-text)}
+.tag.er{background:var(--red-soft);color:var(--red-text)}
+.tag.pop{animation:tagPop var(--d-bouncy) var(--spring-bouncy)}
+@keyframes tagPop{from{transform:scale(.86);opacity:.2}}
+
+/* 分段控件：选中底板随弹簧滑动 */
+.seg{position:relative;display:inline-grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:2px;border-radius:9px;background:var(--fill)}
+.seg.block{display:grid;width:100%}
+.seg-thumb{position:absolute;top:2px;bottom:2px;left:0;width:0;border-radius:7px;background:var(--thumb);box-shadow:var(--shadow-thumb);transition:transform var(--d-snappy) var(--spring-snappy),width var(--d-snappy) var(--spring-snappy)}
+.seg.no-anim .seg-thumb{transition:none}
+.seg > button{position:relative;z-index:1;height:28px;padding:0 14px;border:0;border-radius:7px;background:none;font-size:13px;font-weight:500;color:var(--label);white-space:nowrap;transition:opacity var(--d-fast)}
+.seg > button[aria-checked="false"]:hover:not(:disabled){opacity:.7}
+.seg > button:disabled{opacity:.32;cursor:default}
+.seg > button[data-current][aria-checked="false"]::after{content:"";position:absolute;left:50%;bottom:2px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--orange);animation:fadeIn var(--d-base) var(--ease-out)}
+.seg.small > button{height:24px;font-size:12px;padding:0 10px}
+.seg.disabled{opacity:.5;pointer-events:none}
+
+/* 开关：按下拉伸，松开以轻微回弹落位 */
+.sw{position:relative;display:inline-block;width:44px;height:26px;border-radius:13px;background:var(--fill-strong);flex:none;transition:background-color var(--d-base) var(--ease-out),opacity var(--d-fast)}
+.sw:has(input:checked){background:var(--green)}
+.sw input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer;z-index:1}
+.sw-knob{position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:11px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.18),0 0 0 .5px rgba(0,0,0,.04);transition:transform var(--d-bouncy) var(--spring-bouncy),width var(--d-snappy) var(--spring-snappy)}
+.sw input:checked + .sw-knob{transform:translateX(18px)}
+.sw input:active:not(:disabled) + .sw-knob{width:28px}
+.sw input:checked:active:not(:disabled) + .sw-knob{transform:translateX(12px)}
+.sw:has(input:disabled){opacity:.4}
+.sw:has(input:disabled) input{cursor:default}
+.sw:has(input:focus-visible){box-shadow:0 0 0 3px var(--focus)}
+.sw.pending{opacity:.75}
+.sw.pending .sw-knob::after{content:"";position:absolute;inset:5px;border-radius:50%;border:2px solid rgba(0,0,0,.1);border-top-color:var(--accent);animation:spin .8s linear infinite}
+
+/* 滑块 */
+.slider{-webkit-appearance:none;appearance:none;width:100%;height:24px;margin:0;background:transparent;--p:50%}
+.slider::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--accent) var(--p),var(--fill-strong) var(--p))}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-9px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.22),0 0 0 .5px rgba(0,0,0,.06);transition:transform var(--d-bouncy) var(--spring-bouncy)}
+.slider:active::-webkit-slider-thumb{transform:scale(1.14)}
+.slider:disabled{opacity:.4}
+.slider:focus-visible{box-shadow:none!important}
+.slider:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px var(--focus)}
+
+/* 弹出按钮（替换原生 select）：按钮宽度取最长选项，菜单让当前项对齐按钮 */
+.popbtn{position:relative;display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 6px 0 10px;border:0;border-radius:7px;background:var(--fill-2);font-size:13px;color:var(--label);white-space:nowrap;flex:none;transition:background-color var(--d-fast) var(--ease-out),opacity var(--d-fast)}
+.popbtn:hover:not(:disabled),.popbtn.open{background:var(--fill)}
+.popbtn:disabled{opacity:.4;cursor:default}
+.pop-val{display:grid;text-align:left}
+.pop-val > span{grid-area:1/1;visibility:hidden}
+.pop-val > span.on{visibility:visible}
+.pop-val > .unk{color:var(--label-2)}
+.pop-ch{width:9px;height:15px;fill:none;stroke:var(--label-2);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.popmenu{position:fixed;z-index:88;top:0;left:0;max-height:calc(100vh - 16px);overflow-y:auto;padding:5px;border-radius:10px;background:var(--menu-bg);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);box-shadow:var(--shadow-menu);font-size:13px;user-select:none;animation:menuIn var(--d-snappy) var(--spring-snappy) both,fadeIn calc(110ms * var(--ts)) var(--ease-out) both}
+.popmenu:focus-visible{box-shadow:var(--shadow-menu)!important;border-radius:10px}
+.popmenu.out{pointer-events:none;animation:menuOut calc(150ms * var(--ts)) var(--ease-in) both}
+@keyframes menuIn{from{transform:scale(.95)}}
+@keyframes menuOut{to{opacity:0;transform:scale(.98)}}
+.pop-opt{display:flex;align-items:center;gap:5px;height:24px;padding:0 14px 0 5px;border-radius:5px;white-space:nowrap;cursor:default;color:var(--label)}
+.pop-opt.active{background:var(--accent);color:#fff}
+.pop-check{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;visibility:hidden}
+.pop-opt[aria-selected="true"] .pop-check{visibility:visible}
+.pop-t{flex:1}
+.pop-cur{width:6px;height:6px;margin-left:12px;border-radius:50%;background:var(--orange);flex:none}
+.pop-opt.active .pop-cur{box-shadow:0 0 0 1.5px #fff}
+.num{width:76px;height:30px;padding:0 10px;border:0;border-radius:7px;background:var(--fill-2);text-align:right;font-variant-numeric:tabular-nums;font-size:13px;transition:background-color var(--d-fast),box-shadow var(--d-fast)}
+.num::-webkit-inner-spin-button{-webkit-appearance:none}
+.num:focus{background:var(--surface);box-shadow:0 0 0 3px var(--focus)}
+.num.invalid{box-shadow:0 0 0 1.5px var(--red)}
+
+/* ===================== 5. 分组列表 ===================== */
+.head{margin:0 0 22px}
+.head h1{margin:0;font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-.022em;line-height:1.15}
+.head p{margin:6px 0 0;font-size:13px;color:var(--label-2)}
+.head-row{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
+.head-row .grow{flex:1;min-width:200px}
+.head-actions{display:flex;align-items:center;gap:8px;padding-bottom:2px}
+.sh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:28px 6px 8px}
+.sh:first-child{margin-top:0}
+.sh > span:first-child{font-size:13px;font-weight:600}
+.sh > span:last-child:not(:first-child){font-size:12px;color:var(--label-2)}
+.group{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-card);overflow:hidden}
+.row{position:relative;display:flex;align-items:center;gap:16px;min-height:52px;padding:11px 18px}
+.row + .row::before,.row + .collapse::before,.collapse + .row::before,.pad + .row::before,.row + .pad::before{content:"";position:absolute;top:0;left:18px;right:0;height:1px;background:var(--sep);transform:scaleY(.5);transform-origin:top}
+.collapse,.pad{position:relative}
+.row-l{flex:1;min-width:0}
+.row-l b{display:block;font-size:13px;font-weight:500}
+.row-l small{display:block;margin-top:2px;font-size:12px;color:var(--label-2);overflow-wrap:anywhere}
+.row-v{font-size:13px;color:var(--label-2);text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.row-v.strong{color:var(--label);font-weight:600;font-size:15px}
+button.row{width:100%;border:0;background:none;text-align:left;transition:background-color var(--d-fast) var(--ease-out)}
+button.row:hover{background:var(--surface-hover)}
+button.row:active{background:var(--fill-2)}
+.chev{color:var(--label-3);width:14px;height:14px}
+.row-icon{display:flex;align-items:center;gap:12px}
+.pad{padding:16px 18px}
+.hint{font-size:12px;color:var(--label-2);line-height:1.55}
+.row.foot{justify-content:space-between;background:linear-gradient(var(--fill-2),var(--fill-2)) top/100% 0 no-repeat}
+.row.foot .hint{flex:1}
+.err-text{color:var(--red-text)}
+
+/* 高度折叠：0fr → 1fr，内容延后淡入 */
+.collapse{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--d-smooth) var(--spring-smooth)}
+.collapse > .inner{min-height:0;overflow:hidden;opacity:0;transform:translateY(-4px);transition:opacity var(--d-fast) var(--ease-out),transform var(--d-smooth) var(--spring-smooth)}
+.collapse.open{grid-template-rows:1fr}
+.collapse.open > .inner{opacity:1;transform:none;transition-delay:calc(60ms * var(--ts)),0s}
+.collapse:not(.open)::before{opacity:0}
+.disc{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:0 18px;border:0;background:none;font-size:13px;font-weight:500;text-align:left;border-radius:0;transition:background-color var(--d-fast)}
+.disc:hover{background:var(--surface-hover)}
+.disc .chev{margin-left:auto;transition:transform var(--d-smooth) var(--spring-smooth)}
+.disc[aria-expanded="true"] .chev{transform:rotate(90deg)}
+
+/* ===================== 6. 页面与过渡 ===================== */
+.page{display:none}
+.page.active{display:block}
+.page.active > *,.head.enter > *{animation:fadeIn calc(300ms * var(--ts)) var(--ease-out) both,rise var(--d-gentle) var(--spring-gentle) both;animation-delay:calc(var(--i,0) * 26ms * var(--ts))}
+.page.leaving{opacity:0;transform:translateY(-6px);transition:opacity calc(120ms * var(--ts)) var(--ease-in),transform calc(160ms * var(--ts)) var(--ease-in)}
+.head.leaving{opacity:0;transition:opacity calc(120ms * var(--ts)) var(--ease-in)}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes rise{from{transform:translateY(12px)}}
+.pane{display:none}
+.pane.active{display:block;animation:fadeIn calc(260ms * var(--ts)) var(--ease-out) both,paneIn var(--d-smooth) var(--spring-smooth) both}
+@keyframes paneIn{from{transform:translateX(calc(var(--dir,1) * 18px))}}
+.seg-wrap{display:flex;justify-content:center;margin:0 0 22px}
+.seg-wrap .seg{min-width:420px}
+
+/* 总览：温度仪表 */
+.hero{display:grid;grid-template-columns:1fr 1px 1fr;align-items:center;padding:26px 12px 22px}
+.hero-sep{align-self:stretch;background:var(--sep);margin:12px 0}
+.gauge-cell{display:flex;flex-direction:column;align-items:center;gap:10px}
+.gauge{position:relative;width:176px;height:176px}
+.gauge svg{width:100%;height:100%;transform:rotate(135deg)}
+.gauge circle{fill:none;stroke-width:9;stroke-linecap:round}
+.g-track{stroke:var(--fill)}
+.g-val{stroke:var(--accent);transition:stroke-dasharray var(--d-gentle) var(--spring-smooth),stroke var(--d-smooth) var(--ease-out),opacity var(--d-base)}
+.gauge.warm .g-val{stroke:var(--orange)}
+.gauge.hot .g-val{stroke:var(--red)}
+.gauge.stale .g-val{stroke:var(--label-3)}
+.g-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:6px}
+.g-label{font-size:12px;font-weight:600;color:var(--label-2);letter-spacing:.04em}
+.g-num{display:flex;align-items:flex-start;font-family:var(--font-display);font-size:44px;font-weight:600;letter-spacing:-.03em;line-height:1.1;margin:2px 0}
+.g-num small{font-size:16px;font-weight:500;margin:7px 0 0 2px;color:var(--label-2);letter-spacing:0}
+.gauge.stale .g-num,.gauge.empty .g-num{color:var(--label-3)}
+.gauge.empty .g-num{font-weight:300}
+.gauge.empty .g-num small{visibility:hidden}
+.g-sub{font-size:11px;color:var(--label-2);height:16px}
+.g-meta{font-size:12px;color:var(--label-2)}
+.g-meta b{color:var(--label);font-weight:600}
+
+/* 滚动数字 */
+.roll{display:inline-flex;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rc{display:inline-block;height:1.15em;overflow:hidden;line-height:1.15em;-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent)}
+.rs{display:flex;flex-direction:column;transform:translateY(calc(var(--d) * -1.15em));transition:transform var(--d-smooth) var(--spring-smooth)}
+.rs > span{height:1.15em;text-align:center}
+.rp{line-height:1.15em}
+
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:16px;border:0;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow-card);text-align:left;transition:background-color var(--d-fast) var(--ease-out),transform var(--d-snappy) var(--spring-snappy)}
+.tile:hover{background:var(--surface-hover)}
+.tile:active{transform:scale(.975);transition-duration:var(--d-press)}
+.tile b{font-size:13px;font-weight:600}
+.tile small{font-size:12px;color:var(--label-2);line-height:1.5}
+.tile .sq{width:30px;height:30px;border-radius:8px}
+.tile .sq svg.i{width:18px;height:18px}
+
+/* 风扇 */
+.meter{position:relative;width:120px;height:6px;border-radius:3px;background:var(--fill);overflow:hidden}
+.meter i{position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--v,0));background:var(--accent);border-radius:3px;transition:transform var(--d-smooth) var(--spring-smooth)}
+.fan-val{display:flex;align-items:center;gap:14px}
+.fan-val .row-v{min-width:86px}
+.slider-row{display:grid;grid-template-columns:72px 1fr 52px;align-items:center;gap:14px;padding:10px 18px}
+.slider-row label{font-size:13px;font-weight:500}
+.slider-row output{text-align:right;font-variant-numeric:tabular-nums;color:var(--label-2)}
+
+/* 温控曲线 */
+.chart{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid{stroke:var(--sep);stroke-width:1}
+.chart text{fill:var(--label-3);font-size:10px;font-family:var(--font)}
+.chart .curve{fill:none;stroke-width:2.25;stroke-linejoin:round;stroke-linecap:round;transition:d var(--d-smooth) var(--spring-smooth),opacity var(--d-base)}
+.chart .area{transition:d var(--d-smooth) var(--spring-smooth),opacity var(--d-base)}
+.chart .curve.cpu{stroke:var(--accent)}
+.chart .curve.gpu{stroke:var(--indigo)}
+.chart .dim{opacity:.28}
+.chart .pt{transition:transform var(--d-smooth) var(--spring-smooth)}
+.chart .pt circle{stroke:var(--surface);stroke-width:2.5;transition:r var(--d-snappy) var(--spring-bouncy)}
+.chart .now{stroke:var(--orange);stroke-width:1.2;stroke-dasharray:3 3;transition:transform var(--d-gentle) var(--spring-smooth)}
+.legend{display:flex;gap:16px;align-items:center;font-size:12px;color:var(--label-2)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.pt-row > .round-x{justify-self:end}
+.pt-row{display:grid;grid-template-columns:48px auto auto 1fr;column-gap:28px;align-items:center;gap:12px;padding:6px 18px}
+.pt-row span{font-size:12px;color:var(--label-2)}
+.pt-row label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--label-2)}
+.pt-row.enter{animation:fadeIn calc(240ms*var(--ts)) var(--ease-out) both,rise var(--d-snappy) var(--spring-snappy) both}
+.round-x{width:26px;height:26px;border-radius:50%;border:0;background:var(--fill-2);color:var(--label-2);display:grid;place-items:center;transition:background-color var(--d-fast),color var(--d-fast),transform var(--d-snappy) var(--spring-snappy)}
+.round-x:hover:not(:disabled){background:var(--red-soft);color:var(--red-text)}
+.round-x:active:not(:disabled){transform:scale(.9)}
+.round-x:disabled{opacity:.3}
+.round-x svg{width:12px;height:12px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round}
+
+/* 灯光 */
+.effects{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 18px}
+.fx{position:relative;display:flex;flex-direction:column;gap:7px;padding:0;border:0;background:none;text-align:left;font-size:12px;color:var(--label-2);border-radius:10px}
+.fx .sw-prev{height:52px;border-radius:10px;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.08);transition:box-shadow var(--d-base) var(--ease-out),transform var(--d-snappy) var(--spring-snappy)}
+.fx:hover .sw-prev{transform:translateY(-1px)}
+.fx:active .sw-prev{transform:scale(.97)}
+.fx[aria-checked="true"]{color:var(--label);font-weight:500}
+.fx[aria-checked="true"] .sw-prev{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.fx .cur{position:absolute;top:6px;right:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:rgba(0,0,0,.45);color:#fff;backdrop-filter:blur(6px)}
+.fx:disabled{opacity:.4}
+.p-static{background:linear-gradient(90deg,#0a84ff 0 25%,#5e5ce6 25% 50%,#ff375f 50% 75%,#ff9f0a 75%)}
+.p-breath{background:radial-gradient(circle at 50% 50%,#ff375f,#2a0b14 75%)}
+.p-neon{background:conic-gradient(from 210deg,#ff375f,#ff9f0a,#ffd60a,#30d158,#64d2ff,#5e5ce6,#ff375f)}
+.p-wave{background:linear-gradient(100deg,#64d2ff,#5e5ce6 35%,#bf5af2 55%,#ff375f 80%,#ff9f0a)}
+.p-shift{background:linear-gradient(90deg,#30d158,#64d2ff)}
+.p-zoom{background:repeating-radial-gradient(circle at 50% 50%,#bf5af2 0 6px,#2b1440 6px 12px)}
+.p-meteor{background:linear-gradient(120deg,#0b0b1a 40%,#fff 48%,#64d2ff 52%,#0b0b1a 62%)}
+.p-flash{background:radial-gradient(circle,#ffd60a 1.5px,transparent 2px) 0 0/10px 10px,#1b1b24}
+.colors{display:flex;gap:10px;align-items:center}
+.cdot{width:22px;height:22px;border-radius:50%;border:0;padding:0;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15);transition:box-shadow var(--d-base) var(--ease-out),transform var(--d-snappy) var(--spring-bouncy)}
+.cdot:active{transform:scale(.88)}
+.cdot[aria-checked="true"]{box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15),0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.cdot:disabled{opacity:.3}
+.zones{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:6px 18px 16px}
+.zone{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--label-2)}
+.zone input{-webkit-appearance:none;appearance:none;width:100%;height:36px;border:0;border-radius:9px;padding:0;cursor:pointer;background:none;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.1)}
+.zone input::-webkit-color-swatch-wrapper{padding:0}
+.zone input::-webkit-color-swatch{border:0;border-radius:9px}
+
+/* 插件 */
+.mono{font-family:var(--mono);font-size:11.5px}
+.logbox{width:100%;min-height:160px;max-height:260px;border:0;border-radius:10px;padding:12px 14px;background:var(--fill-2);resize:vertical;line-height:1.6}
+.notice{display:flex;gap:12px;align-items:flex-start;padding:14px 18px;background:var(--fill-2)}
+.notice b{display:block;font-size:13px}
+
+/* 草稿与读回冲突（行内） */
+.cf .conflict{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding:11px 18px;background:var(--orange-wash)}
+.conflict .cf-ico{width:16px;height:16px;color:var(--orange)}
+.conflict .row-l{min-width:180px}
+.conflict .cf-act{display:flex;gap:6px;margin-left:auto}
+.conflict.info{background:var(--fill-2)}
+.conflict.info .cf-ico{color:var(--label-2)}
+.conflict.er{background:var(--red-soft)}
+.conflict.er .cf-ico{color:var(--red)}
+.conflict .spinner{flex:none}
+.cf::before{content:"";position:absolute;top:0;left:18px;right:0;height:1px;background:var(--sep);transform:scaleY(.5);transform-origin:top}
+
+/* Device Center 外设 */
+.demo-note{margin:0 6px 16px;font-size:12px;color:var(--orange-text)}
+.conn-s{display:flex!important;align-items:center;gap:6px}
+.dev-batt{min-width:64px}
+.field{width:200px;height:30px;padding:0 10px;border:0;border-radius:7px;background:var(--fill-2);font-size:13px;transition:background-color var(--d-fast),box-shadow var(--d-fast)}
+.field:focus{background:var(--surface);box-shadow:0 0 0 3px var(--focus)}
+.field.invalid{box-shadow:0 0 0 1.5px var(--red)}
+.field:disabled{opacity:.4}
+.cpick{-webkit-appearance:none;appearance:none;width:30px;height:22px;padding:0;border:0;border-radius:6px;background:none;cursor:pointer;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}
+.cpick::-webkit-color-swatch-wrapper{padding:0}
+.cpick::-webkit-color-swatch{border:0;border-radius:6px}
+.cpick:disabled{opacity:.3}
+.soon b{color:var(--label-2)}
+.sync-ind{display:inline-flex;align-items:center;gap:6px}
+.sync-ind .spinner{width:10px;height:10px}
+
+/* 设备排序：把手拖动或 ↑↓ 键，弹簧换位 */
+#dc-devs{overflow:visible}
+.dc-sec > .sh:first-child{margin-top:28px}
+.dev-row{gap:12px;padding-left:8px;background:var(--surface);border-radius:var(--r-card)}
+.dev-row + .dev-row::before{left:52px}
+.grip{display:grid;place-items:center;width:22px;height:32px;margin-right:-2px;padding:0;border:0;border-radius:6px;background:none;color:var(--label-3);cursor:grab;touch-action:none;transition:color var(--d-fast),background-color var(--d-fast)}
+.grip:hover{color:var(--label-2);background:var(--fill-2)}
+.grip svg{width:8px;height:14px;fill:currentColor}
+#dc-devs.sorting .dev-row:not(.dragging){transition:transform var(--d-snappy) var(--spring-snappy)}
+#dc-devs.sorting{cursor:grabbing}
+.dev-row.dragging{z-index:3;box-shadow:var(--shadow-float);cursor:grabbing}
+.dev-row.dragging .grip{cursor:grabbing;color:var(--label-2)}
+.dev-row.dragging::before,.dev-row.dragging + .dev-row::before{opacity:0}
+.dev-row.off .sq{filter:grayscale(1);opacity:.6}
+
+/* ===================== 7. 横幅 / 提示 / 弹窗 / 浮层 ===================== */
+.banner-host{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--d-smooth) var(--spring-smooth),margin var(--d-smooth) var(--spring-smooth);margin-bottom:0}
+.banner-host.open{grid-template-rows:1fr;margin-bottom:20px}
+.banner-host > div{min-height:0;overflow:hidden}
+.banner{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow-card);animation:fadeIn calc(260ms*var(--ts)) var(--ease-out) both}
+.banner .sq{width:30px;height:30px;border-radius:8px}
+.banner b{display:block;font-size:13px}
+.banner p{margin:2px 0 0;font-size:12px;color:var(--label-2)}
+.banner .grow{flex:1;min-width:0}
+
+.toast-host{position:fixed;top:58px;left:calc(50% + var(--side-w) / 2);z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;transform:translateX(-50%)}
+.toast{display:flex;align-items:center;gap:10px;max-width:520px;padding:9px 16px 9px 10px;border-radius:22px;background:var(--elevated);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);box-shadow:var(--shadow-float);font-size:13px;font-weight:500;pointer-events:auto;animation:toastIn var(--d-bouncy) var(--spring-bouncy) both,fadeIn calc(200ms*var(--ts)) var(--ease-out) both}
+.toast .sq{width:24px;height:24px;border-radius:50%}
+.toast small{display:block;font-size:11px;font-weight:400;color:var(--label-2)}
+.toast.out{animation:toastOut calc(200ms*var(--ts)) var(--ease-in) both}
+@keyframes toastIn{from{transform:translateY(-28px) scale(.92)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-10px) scale(.97)}}
+
+.scrim{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(0,0,0,.22);animation:fadeIn calc(220ms*var(--ts)) var(--ease-out) both}
+html[data-theme="dark"] .scrim{background:rgba(0,0,0,.5)}
+.sheet{width:min(420px,calc(100vw - 48px));padding:22px 22px 18px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow-float);animation:sheetIn var(--d-snappy) var(--spring-snappy) both,fadeIn calc(180ms*var(--ts)) var(--ease-out) both}
+.sheet h2{margin:0 0 8px;font-size:15px;font-weight:600}
+.sheet p{margin:0 0 8px;font-size:13px;color:var(--label-2);line-height:1.6}
+.sheet .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.scrim.out{animation:fadeOut calc(180ms*var(--ts)) var(--ease-in) both}
+.scrim.out .sheet{animation:sheetOut calc(180ms*var(--ts)) var(--ease-in) both}
+@keyframes sheetIn{from{transform:scale(.94) translateY(6px)}}
+@keyframes sheetOut{to{transform:scale(.97);opacity:0}}
+@keyframes fadeOut{to{opacity:0}}
+
+.foot-bar{position:relative;display:flex;align-items:center;justify-content:space-between;margin-top:36px;padding-top:16px;border-top:.5px solid var(--sep);font-size:12px;color:var(--label-2)}
+.popover{position:absolute;right:0;bottom:44px;z-index:30;width:360px;max-height:320px;overflow:auto;padding:8px 0;border-radius:14px;background:var(--elevated);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);box-shadow:var(--shadow-float);transform-origin:bottom right;animation:popIn var(--d-snappy) var(--spring-snappy) both,fadeIn calc(160ms*var(--ts)) var(--ease-out) both}
+.popover.out{animation:popOut calc(150ms*var(--ts)) var(--ease-in) both}
+@keyframes popIn{from{transform:scale(.9)}}
+@keyframes popOut{to{opacity:0;transform:scale(.96)}}
+.log-item{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:8px 16px;font-size:12px}
+.log-item time{color:var(--label-3);font-variant-numeric:tabular-nums}
+.log-item + .log-item{border-top:.5px solid var(--sep)}
+
+/* ===================== 8. 预览工具（不属于产品界面） ===================== */
+.pv-fab{position:fixed;right:18px;bottom:18px;z-index:80;display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border:0;border-radius:18px;background:#1d1d1f;color:#fff;font-size:12px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:transform var(--d-snappy) var(--spring-snappy)}
+html[data-theme="dark"] .pv-fab{background:#f5f5f7;color:#1d1d1f}
+.pv-fab:active{transform:scale(.95)}
+.pv-panel{position:fixed;right:18px;bottom:64px;z-index:80;width:340px;max-height:calc(100vh - 90px);overflow:auto;padding:14px;border-radius:16px;background:var(--elevated);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);box-shadow:var(--shadow-float);transform-origin:bottom right;animation:popIn var(--d-snappy) var(--spring-snappy) both,fadeIn calc(160ms*var(--ts)) var(--ease-out) both}
+.pv-panel h3{margin:0;font-size:13px}
+.pv-panel .pv-note{margin:2px 0 12px;font-size:11px;color:var(--orange-text)}
+.pv-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0}
+.pv-row > span{font-size:12px;color:var(--label-2)}
+.pv-tokens{margin-top:10px;font-size:11px;color:var(--label-2);line-height:1.7}
+.pv-tokens code{font-family:var(--mono);font-size:10.5px;color:var(--label)}
+
+/* ===================== 9. 减少动态效果：保留透明度，去掉位移、缩放与回弹 ===================== */
+html.rm *,html.rm *::before,html.rm *::after{transition-duration:0s!important;animation-name:fadeIn!important;animation-duration:calc(140ms * var(--ts))!important;animation-timing-function:linear!important;animation-delay:0s!important}
+html.rm .spinner,html.rm .sw.pending .sw-knob::after,html.rm #refresh-btn.syncing #refresh-ico{animation-name:none!important}
+html.rm .collapse > .inner{transform:none}
+
+/* ===================== 10. 窄窗口 ===================== */
+@media (max-width: 900px){
+  .content{padding:60px 24px 32px}
+  .effects{grid-template-columns:repeat(2,1fr)}
+  .tiles{grid-template-columns:1fr 1fr}
+  .seg-wrap .seg{min-width:0;width:100%}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳转到主要内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-overview" viewBox="0 0 24 24"><path d="M4.5 16a7.5 7.5 0 1 1 15 0"/><path d="M12 16l3.5-4.5"/><circle cx="12" cy="16" r="1.2"/></symbol>
+  <symbol id="i-fan" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.8"/><path d="M12 10.2C11.6 6 12.6 3 15.3 3c2 0 2.8 2 1.8 3.6-1 1.6-2.8 2.7-5.1 3.6M13.8 12c4.2-.4 7.2.6 7.2 3.3 0 2-2 2.8-3.6 1.8-1.6-1-2.7-2.8-3.6-5.1M12 13.8c.4 4.2-.6 7.2-3.3 7.2-2 0-2.8-2-1.8-3.6 1-1.6 2.8-2.7 5.1-3.6M10.2 12C6 12.4 3 11.4 3 8.7c0-2 2-2.8 3.6-1.8 1.6 1 2.7 2.8 3.6 5.1"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7.5h9M17 7.5h3M4 16.5h3M11 16.5h9"/><circle cx="15" cy="7.5" r="2"/><circle cx="9" cy="16.5" r="2"/></symbol>
+  <symbol id="i-plugin" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><path d="M16.5 13.5v6M13.5 16.5h6"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M7 10h.01M10.5 10h.01M14 10h.01M17.5 10h.01M8 14h8"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.2h-4.2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.2A8 8 0 0 1 9.8 4a8 8 0 1 0 10.2 10.2z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 8.5v4.5M12 16.5h.01"/><path d="M10.3 4.2 2.9 17.3A2 2 0 0 0 4.6 20.3h14.8a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5.5c0 4.2 3 7.8 7 9.5 4-1.7 7-5.3 7-9.5V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-mouse" viewBox="0 0 24 24"><rect x="6.5" y="3" width="11" height="18" rx="5.5"/><path d="M12 7v3"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></symbol>
+  <symbol id="i-sidebar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="3"/><path d="M9.5 5v14"/></symbol>
+  <symbol id="i-lamp" viewBox="0 0 24 24"><path d="M4 9h16l-2 3H6z"/><path d="M8 15.5l-1 2M12 16v2.5M16 15.5l1 2"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></symbol>
+  <symbol id="i-pad" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="3"/><path d="M7 12h10"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark"><svg class="i" style="width:16px;height:16px"><use href="#i-bolt"/></svg></span>
+      <div class="brand-text"><b>Acer Console</b><small>Predator PHN16-71</small></div>
+    </div>
+    <button class="side-toggle" id="side-toggle" aria-controls="sidebar" aria-expanded="true" aria-label="收起侧栏" data-tip="收起侧栏 · Ctrl+B"><svg class="i"><use href="#i-sidebar"/></svg></button>
+    <nav class="nav" id="nav" aria-label="主导航">
+      <i class="nav-pill" aria-hidden="true"></i>
+      <button data-page="overview" data-tip="设备总览"><span class="sq blue"><svg class="i"><use href="#i-overview"/></svg></span><span>设备总览</span></button>
+      <button data-page="fan" data-tip="性能与风扇"><span class="sq orange"><svg class="i"><use href="#i-fan"/></svg></span><span>性能与风扇</span></button>
+      <button data-page="settings" data-tip="设备设置"><span class="sq gray"><svg class="i"><use href="#i-settings"/></svg></span><span>设备设置</span></button>
+      <button data-page="plugin" data-tip="服务插件"><span class="sq green"><svg class="i"><use href="#i-plugin"/></svg></span><span>服务插件</span></button>
+      <button data-page="acer" class="sub" id="nav-acer" data-tip="Acer 服务保护"><span class="sq teal"><svg class="i"><use href="#i-shield"/></svg></span><span>Acer 服务保护</span></button>
+      <button data-page="dc" class="sub" id="nav-dc" data-tip="Device Center 外设"><span class="sq indigo"><svg class="i"><use href="#i-mouse"/></svg></span><span>Device Center 外设</span></button>
+    </nav>
+    <div class="side-foot">
+      <div class="foot-full">
+        <b>Predator PHN16-71</b>
+        <span id="side-bios">BIOS V1.18</span>
+        <div class="conn" id="side-conn"><i class="dot"></i><span>硬件已连接</span></div>
+      </div>
+      <div class="foot-mini" id="foot-mini" data-tip="Predator PHN16-71 · 硬件已连接"><i class="dot"></i></div>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <div class="toolbar" id="toolbar">
+      <span class="tb-title" id="tb-title">设备总览</span>
+      <span class="chip" id="chip-conn"><i class="dot"></i><span>已连接</span></span>
+      <span class="chip" id="chip-power"><svg class="i" style="width:13px;height:13px"><use href="#i-bolt"/></svg><span>已接电</span></span>
+      <span class="chip" id="chip-batt"><span>电量 <span class="roll" data-roll="batt"></span>%</span></span>
+      <button class="btn icon" id="theme-btn" aria-label="切换浅色/深色外观"><svg class="i"><use href="#i-moon"/></svg></button>
+      <button class="btn" id="refresh-btn" aria-label="刷新设备状态">
+        <svg class="i" id="refresh-ico" style="width:15px;height:15px"><use href="#i-refresh"/></svg>
+        <span class="label-swap"><span id="rf-a">刷新</span><span id="rf-b" style="opacity:0;transform:translateY(6px)">同步中</span></span>
+      </button>
+      <div class="winctl" aria-hidden="true">
+        <button tabindex="-1"><svg viewBox="0 0 10 10"><path d="M0 5h10"/></svg></button>
+        <button tabindex="-1"><svg viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9"/></svg></button>
+        <button tabindex="-1" class="close"><svg viewBox="0 0 10 10"><path d="M0 0l10 10M10 0 0 10"/></svg></button>
+      </div>
+    </div>
+
+    <main class="main" id="main" tabindex="-1">
+      <div class="content">
+        <header class="head" id="head">
+          <h1 id="page-title">设备总览</h1>
+          <p id="page-sub">查看硬件状态与常用设置。</p>
+        </header>
+
+        <div class="banner-host" id="banner-host"><div id="banner-slot"></div></div>
+
+        <!-- ========== 设备总览 ========== -->
+        <section class="page" data-page="overview">
+          <div class="group hero">
+            <div class="gauge-cell">
+              <div class="gauge" data-gauge="cpu">
+                <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="g-track" cx="60" cy="60" r="52"/><circle class="g-val" cx="60" cy="60" r="52"/></svg>
+                <div class="g-center"><span class="g-label">CPU</span><span class="g-num"><span class="roll" data-roll="cpuT"></span><small>°C</small></span><span class="g-sub"></span></div>
+              </div>
+              <div class="g-meta">风扇 <b><span class="roll" data-roll="cpuRpm"></span></b> RPM</div>
+            </div>
+            <div class="hero-sep"></div>
+            <div class="gauge-cell">
+              <div class="gauge" data-gauge="gpu">
+                <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="g-track" cx="60" cy="60" r="52"/><circle class="g-val" cx="60" cy="60" r="52"/></svg>
+                <div class="g-center"><span class="g-label">GPU</span><span class="g-num"><span class="roll" data-roll="gpuT"></span><small>°C</small></span><span class="g-sub"></span></div>
+              </div>
+              <div class="g-meta">风扇 <b><span class="roll" data-roll="gpuRpm"></span></b> RPM</div>
+            </div>
+          </div>
+
+          <div class="sh"><span>运行状态</span><span id="ov-src">设备读回</span></div>
+          <div class="group">
+            <button class="row" data-go="fan"><span class="sq orange"><svg class="i"><use href="#i-bolt"/></svg></span><span class="row-l"><b>性能模式</b></span><span class="row-v" id="ov-profile">平衡</span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <button class="row" data-go="fan"><span class="sq blue"><svg class="i"><use href="#i-fan"/></svg></span><span class="row-l"><b>散热模式</b></span><span class="row-v" id="ov-fan">自动</span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <button class="row" data-go="settings" data-tab="light"><span class="sq pink"><svg class="i"><use href="#i-key"/></svg></span><span class="row-l"><b>键盘灯光</b></span><span class="row-v" id="ov-light">波浪 · 亮度 80%</span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <button class="row" data-go="settings" data-tab="aux"><span class="sq green"><svg class="i"><use href="#i-shield"/></svg></span><span class="row-l"><b>电池保护</b><small>限制充电上限</small></span><span class="row-v" id="ov-batt">已开启</span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="row"><span class="sq gray"><svg class="i"><use href="#i-list"/></svg></span><span class="row-l"><b>最近读取</b><small id="ov-read-sub">每 2 秒采样</small></span><span class="row-v" id="ov-read">刚刚</span></div>
+          </div>
+
+          <div class="sh"><span>快捷操作</span></div>
+          <div class="tiles">
+            <button class="tile" data-go="fan"><span class="sq orange"><svg class="i"><use href="#i-fan"/></svg></span><b>性能与风扇</b><small>切换性能模式，调整双风扇与温控曲线</small></button>
+            <button class="tile" data-go="settings" data-tab="light"><span class="sq pink"><svg class="i"><use href="#i-key"/></svg></span><b>键盘灯光</b><small>颜色、亮度与动态灯效</small></button>
+            <button class="tile" data-go="plugin"><span class="sq green"><svg class="i"><use href="#i-plugin"/></svg></span><b>服务插件</b><small>Acer 服务保护与 Device Center</small></button>
+          </div>
+        </section>
+
+        <!-- ========== 性能与风扇 ========== -->
+        <section class="page" data-page="fan">
+          <div class="sh"><span>接电性能模式</span><span id="profile-tag-wrap"><span class="tag ok" id="profile-tag">当前 · 平衡</span></span></div>
+          <div class="group">
+            <div class="pad">
+              <div class="seg block" data-seg="profile" role="radiogroup" aria-label="性能模式草稿" data-dev>
+                <i class="seg-thumb"></i>
+                <button role="radio" data-v="quiet">安静</button>
+                <button role="radio" data-v="balanced">平衡</button>
+                <button role="radio" data-v="performance">性能</button>
+                <button role="radio" data-v="turbo">极速</button>
+                <button role="radio" data-v="eco" data-cap-off title="设备未开放此模式">节能</button>
+              </div>
+              <p class="hint" style="margin:12px 2px 0" id="profile-desc">日常使用，兼顾性能与噪声</p>
+            </div>
+            <div class="collapse cf" id="profile-cf"><div class="inner"><div class="conflict"><svg class="i cf-ico"><use href="#i-warn"/></svg><span class="row-l"><b id="profile-cf-t">设备已变为 —</b><small>同步时读回发生变化，草稿没有被覆盖。</small></span><span class="cf-act"><button class="btn" data-keep="profile">保留草稿</button><button class="btn primary" data-adopt="profile">采用设备值</button></span></div></div></div>
+            <div class="row foot">
+              <span class="hint" id="profile-hint">设备读回确认后，当前模式才会更新。</span>
+              <button class="btn primary" id="profile-apply">应用模式</button>
+            </div>
+          </div>
+
+          <div class="sh"><span>风扇实时状态</span><span id="fan-live-mode">自动</span></div>
+          <div class="group">
+            <div class="row"><span class="row-l"><b>CPU 风扇</b><small>核心温度 <span id="fan-cpu-t">63°C</span></small></span><span class="fan-val"><span class="meter"><i id="m-cpu"></i></span><span class="row-v strong"><span class="roll" data-roll="cpuRpm2"></span> <small class="muted" style="font-size:11px;font-weight:400">RPM</small></span></span></div>
+            <div class="row"><span class="row-l"><b>GPU 风扇</b><small>核心温度 <span id="fan-gpu-t">56°C</span></small></span><span class="fan-val"><span class="meter"><i id="m-gpu"></i></span><span class="row-v strong"><span class="roll" data-roll="gpuRpm2"></span> <small class="muted" style="font-size:11px;font-weight:400">RPM</small></span></span></div>
+          </div>
+
+          <div class="sh"><span>风扇控制</span><span id="fan-tag-wrap"><span class="tag ok" id="fan-tag">当前 · 自动</span></span></div>
+          <div class="group">
+            <div class="row">
+              <span class="row-l"><b>风扇模式</b><small>自定义时分别设定双风扇目标</small></span>
+              <div class="seg" data-seg="fanmode" role="radiogroup" aria-label="风扇模式草稿" data-dev>
+                <i class="seg-thumb"></i>
+                <button role="radio" data-v="auto">自动</button>
+                <button role="radio" data-v="max">最大</button>
+                <button role="radio" data-v="custom">自定义</button>
+              </div>
+            </div>
+            <div class="collapse" id="fan-custom"><div class="inner">
+              <div style="padding:6px 0 10px">
+                <div class="slider-row"><label for="s-cpu">CPU</label><input class="slider" id="s-cpu" type="range" min="20" max="100" step="1" value="60" data-dev><output id="o-cpu">60%</output></div>
+                <div class="slider-row"><label for="s-gpu">GPU</label><input class="slider" id="s-gpu" type="range" min="20" max="100" step="1" value="55" data-dev><output id="o-gpu">55%</output></div>
+                <p class="hint" style="margin:2px 18px 0">可调范围 20–100%（预览模拟值，正式版取设备能力读数）。</p>
+              </div>
+            </div></div>
+            <div class="row foot">
+              <span class="hint" id="fan-hint">与当前设置一致。</span>
+              <button class="btn primary" id="fan-apply">应用</button>
+            </div>
+          </div>
+
+          <div class="sh"><span>自定义温控曲线</span><span id="th-tag-wrap"><span class="tag" id="th-tag">已停止</span></span></div>
+          <div class="group">
+            <div class="pad">
+              <b style="font-size:15px;font-weight:600">随温度调节双风扇</b>
+              <p class="hint" style="margin:6px 0 0">软件运行时按曲线调节，停止后恢复自动模式。仅支持接电运行，尚待本机完整实测。下方是参数表达范围，不是推荐安全范围。</p>
+            </div>
+            <div class="pad" style="padding-top:4px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">
+                <div class="legend"><span><i style="background:var(--accent)"></i>CPU</span><span><i style="background:var(--indigo)"></i>GPU</span><span><i style="background:var(--orange);height:1.5px"></i>当前温度</span></div>
+                <div class="seg small" data-seg="curve" role="radiogroup" aria-label="编辑哪条曲线"><i class="seg-thumb"></i><button role="radio" data-v="cpu">编辑 CPU</button><button role="radio" data-v="gpu">编辑 GPU</button></div>
+              </div>
+              <svg class="chart" id="chart" viewBox="0 0 560 210" role="img" aria-label="温控曲线预览，横轴温度，纵轴风扇百分比"></svg>
+              <p class="hint" style="margin:6px 0 0;color:var(--orange-text)">预览示例曲线（模拟数据）。正式版不预填任何未经验证的温控点。</p>
+            </div>
+            <div id="pt-list" style="padding:2px 0 8px"></div>
+            <div class="row">
+              <button class="btn plain" id="pt-add">＋ 添加曲线点</button>
+              <span style="margin-left:auto" class="hint">降速滞回</span>
+              <input class="num" id="hyst" type="number" min="0" max="10" step="0.5" value="3"><span class="hint">°C</span>
+            </div>
+            <div class="row foot">
+              <span class="hint" id="th-hint">CPU 目标 — · GPU 目标 —</span>
+              <button class="btn" id="th-save">保存曲线</button>
+              <button class="btn primary" id="th-start">启动曲线</button>
+              <button class="btn" id="th-stop" hidden>停止并恢复自动</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== 设备设置 ========== -->
+        <section class="page" data-page="settings">
+          <div class="seg-wrap">
+            <div class="seg" data-seg="settingsTab" role="tablist" aria-label="设置类别">
+              <i class="seg-thumb"></i>
+              <button role="radio" data-v="light">键盘灯光</button>
+              <button role="radio" data-v="aux">硬件辅助与电源</button>
+              <button role="radio" data-v="app">应用与系统</button>
+            </div>
+          </div>
+
+          <div class="pane" data-pane="light">
+            <div class="sh"><span>键盘灯效</span><span id="light-tag-wrap"><span class="tag ok" id="light-tag">与设备读回一致</span></span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>当前灯效</b><small id="light-cur">波浪 · 亮度 80 · 速度 5 · 方向 1</small></span></div>
+              <div class="effects" id="effects" role="radiogroup" aria-label="选择灯效"></div>
+              <div class="collapse" id="light-dyn"><div class="inner">
+                <div class="slider-row"><label for="l-speed">速度</label><input class="slider" id="l-speed" type="range" min="1" max="9" step="1" data-dev><output id="lo-speed"></output></div>
+                <div class="slider-row"><label for="l-bright">亮度</label><input class="slider" id="l-bright" type="range" min="0" max="100" step="1" data-dev><output id="lo-bright"></output></div>
+                <div class="row"><span class="row-l"><b>方向</b></span><div class="seg small" data-seg="ldir" role="radiogroup" aria-label="灯效方向" data-dev><i class="seg-thumb"></i><button role="radio" data-v="1">方向 1</button><button role="radio" data-v="2">方向 2</button></div></div>
+                <div class="row"><span class="row-l"><b>单色</b><small id="color-note">选择灯效使用的颜色</small></span><div class="colors" id="colors" role="radiogroup" aria-label="单色"></div></div>
+              </div></div>
+              <div class="collapse" id="light-static"><div class="inner">
+                <div class="row" style="min-height:40px;padding-bottom:4px"><span class="row-l"><b>四区颜色</b><small>从左到右对应键盘四个分区</small></span></div>
+                <div class="zones" id="zones"></div>
+              </div></div>
+              <div class="row foot">
+                <span class="hint" id="light-hint">尚未修改。应用前不会改动键盘。</span>
+                <button class="btn primary" id="light-apply">应用灯效</button>
+              </div>
+            </div>
+            <div class="sh"><span>恢复</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>恢复上一步</b><small>恢复设备读取组件保存的上一步真实灯光设置。</small></span><button class="btn" id="light-restore" data-dev>恢复上一步灯光</button></div>
+            </div>
+          </div>
+
+          <div class="pane" data-pane="aux">
+            <div class="sh"><span>电池保护</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>限制充电上限</b><small id="bc-sub">电量 78% · 当前读回：开启</small></span><label class="sw" id="bc-sw"><input type="checkbox" role="switch" aria-label="限制充电上限" id="bc" data-dev><span class="sw-knob"></span></label></div>
+            </div>
+
+            <div class="sh"><span>USB 关机供电</span><span id="usb-tag-wrap"><span class="tag ok" id="usb-tag">与设备读回一致</span></span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>启用 USB 关机供电</b><small>修改只编辑草稿，点击应用后再读取确认。</small></span><label class="sw"><input type="checkbox" role="switch" aria-label="启用 USB 关机供电" id="usb-on" data-dev><span class="sw-knob"></span></label></div>
+              <div class="row"><span class="row-l"><b>电量截止阈值</b><small>低于该电量停止关机供电；修改阈值不会自动开启功能。</small></span><div class="seg small" data-seg="usbth" role="radiogroup" aria-label="电量截止阈值" data-dev><i class="seg-thumb"></i><button role="radio" data-v="10">10%</button><button role="radio" data-v="20">20%</button><button role="radio" data-v="30">30%</button></div></div>
+              <div class="row foot"><span class="hint" id="usb-hint">当前设置：关闭 · 截止电量 20%。物理关机供电效果仍待测试。</span><button class="btn primary" id="usb-apply">应用 USB 设置</button></div>
+            </div>
+
+            <div class="sh"><span>电源切换规则</span><span id="rule-tag-wrap"><span class="tag ok" id="rule-tag">与已保存配置一致</span></span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>电源变化时切换模式</b><small>保存后仅在电源连接状态变化时执行，不立即切换当前模式。</small></span><label class="sw"><input type="checkbox" role="switch" aria-label="电源变化时切换模式" id="rule-on"><span class="sw-knob"></span></label></div>
+              <div class="row"><span class="row-l"><b>接通电源</b><small>仅列出已验证模式</small></span><select class="select" id="rule-ac"><option value="none">不切换</option><option value="quiet">安静</option><option value="balanced">平衡</option><option value="performance">性能</option><option value="turbo">极速</option></select></div>
+              <div class="row"><span class="row-l"><b>使用电池</b><small>仅列出已验证模式</small></span><select class="select" id="rule-dc"><option value="none">不切换</option><option value="quiet">安静</option><option value="balanced">平衡</option></select></div>
+              <div class="row foot"><span class="hint">本次保存不代表硬件模式已切换。</span><button class="btn primary" id="rule-save">保存规则</button></div>
+            </div>
+
+            <div class="sh"><span>厂商外设与音效</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>LCD 响应加速</b></span><label class="sw"><input type="checkbox" role="switch" aria-label="LCD 响应加速" data-dev data-vendor><span class="sw-knob"></span></label></div>
+              <div class="row"><span class="row-l"><b>启动声音</b></span><label class="sw"><input type="checkbox" role="switch" aria-label="启动声音" data-dev data-vendor checked><span class="sw-knob"></span></label></div>
+              <div class="row"><span class="row-l"><b>粘滞键</b></span><label class="sw"><input type="checkbox" role="switch" aria-label="粘滞键" data-dev data-vendor><span class="sw-knob"></span></label></div>
+              <div class="row"><span class="row-l"><b>闲置 30 秒关闭键盘背光</b></span><label class="sw"><input type="checkbox" role="switch" aria-label="闲置 30 秒关闭键盘背光" data-dev data-vendor checked><span class="sw-knob"></span></label></div>
+              <div class="row"><span class="row-l"><b>DTS 音效模式</b><small>依赖 Acer Agent / DTS 组件</small></span><select class="select" id="audio" data-dev><option>音乐</option><option>电影</option><option>语音</option><option>策略游戏</option><option>角色扮演</option><option>射击游戏</option><option>自定义</option><option selected>自动</option></select></div>
+            </div>
+          </div>
+
+          <div class="pane" data-pane="app">
+            <div class="sh"><span>外观与采样</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>主题外观</b><small>浅色、深色或跟随系统</small></span><div class="seg small" data-seg="theme" role="radiogroup" aria-label="主题外观"><i class="seg-thumb"></i><button role="radio" data-v="system">跟随系统</button><button role="radio" data-v="light">浅色</button><button role="radio" data-v="dark">深色</button></div></div>
+              <div class="row"><span class="row-l"><b>采样更新频率</b><small>窗口最小化或在后台时自动暂停</small></span><select class="select" id="poll"><option value="1000">1 秒（实时）</option><option value="2000" selected>2 秒（标准）</option><option value="5000">5 秒（节能）</option></select></div>
+            </div>
+
+            <div class="sh"><span>登录启动项</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>登录后启动</b><small>点击后立即保存。系统读回：<span id="st-state">已关闭</span></small></span><label class="sw" id="st-sw"><input type="checkbox" role="switch" aria-label="登录后启动控制台" id="st"><span class="sw-knob"></span></label></div>
+            </div>
+
+            <div class="sh"><span>窗口与退出偏好</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>关闭窗口时保留托盘</b><small>关闭窗口后释放界面并保留后台；再次启动时重新打开。</small></span><label class="sw"><input type="checkbox" role="switch" aria-label="关闭窗口时保留托盘" id="pref-tray" checked><span class="sw-knob"></span></label></div>
+              <div class="row"><span class="row-l"><b>退出时恢复临时风扇设置</b><small>恢复本次会话首次风扇改动前的状态；需先授权并读取原风扇状态。</small></span><label class="sw"><input type="checkbox" role="switch" aria-label="退出时恢复临时风扇设置" id="pref-restore" checked><span class="sw-knob"></span></label></div>
+              <div class="row foot"><span class="hint" id="pref-hint">设置已同步</span><button class="btn primary" id="pref-save" disabled>保存设置</button></div>
+            </div>
+
+            <div class="sh"><span>官方控制台联动</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>官方界面登录启动</b><small id="off-state">已启用 · PredatorSense Launcher</small></span><button class="btn" id="off-refresh">刷新状态</button></div>
+              <div class="row"><span class="row-l"><small id="off-backup" style="margin:0">先备份当前任务，再禁用或恢复登录启动。</small></span><button class="btn" id="off-bk">备份启动任务</button></div>
+              <div class="row foot"><span class="hint">仅管理官方界面的登录启动任务，不卸载程序、不停止服务或当前进程。</span><button class="btn" id="off-dis" disabled>禁用</button><button class="btn" id="off-res" disabled>恢复备份状态</button></div>
+            </div>
+
+            <div class="group" style="margin-top:20px">
+              <button class="disc" aria-expanded="false" aria-controls="cap-panel">设备能力与说明<svg class="i chev"><use href="#i-chev"/></svg></button>
+              <div class="collapse" id="cap-panel"><div class="inner" id="cap-list"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== 服务插件 · Acer 服务保护（内置） ========== -->
+        <section class="page" data-page="acer">
+          <div>
+            <div class="group">
+              <div class="row"><span class="sq indigo"><svg class="i"><use href="#i-shield"/></svg></span><span class="row-l"><b>Acer Central 句柄修补与 Handle Guard</b><small>每 15 秒自动刷新插件状态</small></span><label class="sw"><input type="checkbox" role="switch" aria-label="每 15 秒刷新" checked><span class="sw-knob"></span></label><button class="btn" id="pl-refresh">刷新</button></div>
+            </div>
+            <div class="sh"><span>Central 服务</span><span class="tag ok">运行中 · 补丁已识别</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>PID / 启动方式</b></span><span class="row-v">5212 / 自动</span></div>
+              <div class="row"><span class="row-l"><b>CPU 占用</b></span><span class="row-v"><span class="roll" data-roll="plCpu"></span> %</span></div>
+              <div class="row"><span class="row-l"><b>工作集 / 私有提交</b></span><span class="row-v"><span class="roll" data-roll="plWs"></span> MiB / 11.08 MiB</span></div>
+              <div class="row"><span class="row-l"><b>句柄 / 线程</b></span><span class="row-v"><span class="roll" data-roll="plH"></span> / 23</span></div>
+              <div class="row"><span class="row-l"><b>运行时长</b></span><span class="row-v">412.6 分钟</span></div>
+              <button class="disc" aria-expanded="false" style="position:relative">程序路径与校验<svg class="i chev"><use href="#i-chev"/></svg></button>
+              <div class="collapse"><div class="inner"><div class="pad mono" style="padding-top:0;color:var(--label-2);line-height:1.7">C:\Program Files\Acer\Care Center\AASSvc.exe<br>SHA256 7c1e…a94f（预览占位）<br><span style="font-family:var(--font);font-size:12px">按服务配置路径校验文件哈希，不等同于验证进程内存映像。</span></div></div></div>
+            </div>
+
+            <div class="sh"><span>Handle Guard 看门狗</span><span class="tag ok" id="guard-tag">自动检查已启用</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>句柄阈值 / 冷却</b></span><span class="row-v">4,000 / 30 分钟</span></div>
+              <div class="row"><span class="row-l"><b>任务状态 / 返回码</b></span><span class="row-v">就绪 / 0</span></div>
+              <div class="row foot"><span class="hint">暂停不会停用补丁，也不会中止已开始的检查。启用后，计划检查可能在超限时重启 Central 服务。</span><button class="btn" id="guard-btn" data-dev>暂停自动检查</button></div>
+            </div>
+
+            <div class="sh"><span>检查记录与日志</span></div>
+            <div class="group">
+              <div class="row"><span class="row-l"><b>查看日志</b><small>默认不读取；开启后按需加载，收起即清空页面缓存。</small></span><label class="sw"><input type="checkbox" role="switch" aria-label="查看日志" id="log-sw"><span class="sw-knob"></span></label></div>
+              <div class="collapse" id="log-panel"><div class="inner"><div class="pad">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><select class="select"><option>重启与异常</option><option>上一份轮转日志</option><option>最近检查结果</option><option>补丁启用记录</option></select><button class="btn">刷新日志</button><span class="hint" style="margin-left:auto">文件内容 · 1,284 字节</span></div>
+                <textarea class="logbox mono" readonly aria-label="日志内容">2026-11-05 09:12:04  check  handles=1872 threshold=4000  ok
+2026-11-05 09:42:04  check  handles=1901 threshold=4000  ok
+2026-11-05 10:12:05  check  handles=1933 threshold=4000  ok
+（预览占位日志）</textarea>
+              </div></div></div>
+              <div class="row"><span class="row-l"><small style="margin:0">上次计划运行 10:12 · 下次计划运行 10:42</small></span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== Device Center 外设 ========== -->
+        <section class="page" data-page="dc">
+          <p class="demo-note">演示数据：设备、电量、读回与冲突均为模拟，不连接任何外设。可在“预览控制”中模拟设备端改动或删除模块文件夹。</p>
+
+          <div class="sh"><span>模块</span><span><span class="tag ok" id="dc-mod-tag">运行中</span></span></div>
+          <div class="group">
+            <div class="row"><span class="sq indigo"><svg class="i"><use href="#i-cube"/></svg></span><span class="row-l"><b>Device Center 模块</b><small class="mono">已发现 modules/device-center · v0.1.1</small></span></div>
+            <div class="row"><span class="row-l"><b>后台进程</b></span><span class="row-v" id="dc-proc">运行中 · PID 8840</span></div>
+            <div class="row"><span class="row-l"><b>协议版本</b><small>主版本不一致时拒绝连接</small></span><span class="row-v" id="dc-proto">1.0 · 一期能力 14 项</span></div>
+            <div class="collapse cf" id="dc-hash"><div class="inner"><div class="conflict"><svg class="i cf-ico"><use href="#i-warn"/></svg><span class="row-l"><b>模块文件已变更，确认后启动</b><small>文件哈希与上次信任的快照不一致（演示）。确认前不运行模块。</small></span><span class="cf-act"><button class="btn primary" id="dc-trust">确认并启动</button></span></div></div></div>
+            <div class="collapse cf" id="dc-note" aria-live="polite"><div class="inner"></div></div>
+            <div class="row"><span class="row-l"><b>控制台退出时保持后台运行</b><small>关闭后，控制台退出时一并停止模块进程。</small></span><label class="sw" id="dc-keep-sw"><input type="checkbox" role="switch" id="dc-keep" aria-label="控制台退出时保持后台运行"><span class="sw-knob"></span></label></div>
+          </div>
+
+          <div class="sh"><span>设备</span><span id="dc-sync-note">设备读回</span></div>
+          <div class="group" id="dc-devs" role="list" aria-label="设备，可拖动把手或用上下方向键调整顺序"></div>
+          <p class="hint" style="margin:8px 6px 0" id="dc-order-help">拖动行首把手，或选中把手后按 ↑ ↓ 调整顺序；下方设置分组按同一顺序排列。</p>
+          <div class="vh" aria-live="polite" id="dc-live"></div>
+
+          <div id="dc-secs">
+          <div class="dc-sec" data-sec="mouse">
+          <div class="sh"><span>ATK F1 鼠标</span><span id="dc-mouse-tag-wrap"><span class="tag ok" id="dc-mouse-tag">与设备读回一致</span></span></div>
+          <div class="group" data-g="mouse">
+            <div class="row"><span class="row-l"><b>当前 DPI</b><small>设备读回</small></span><span class="row-v strong"><span class="roll" data-roll="dcDpi"></span></span></div>
+            <div class="row"><span class="row-l"><b>DPI 档位</b></span><div class="seg small" data-seg="dc-mouse-dpi" role="radiogroup" aria-label="DPI 档位" data-dc="mouse"><i class="seg-thumb"></i><button role="radio" data-v="400">400</button><button role="radio" data-v="800">800</button><button role="radio" data-v="1600">1600</button><button role="radio" data-v="3200">3200</button><button role="radio" data-v="6400">6400</button></div></div>
+            <div class="row"><span class="row-l"><b>回报率</b></span><div class="seg small" data-seg="dc-mouse-rate" role="radiogroup" aria-label="鼠标回报率" data-dc="mouse"><i class="seg-thumb"></i><button role="radio" data-v="125">125</button><button role="radio" data-v="500">500</button><button role="radio" data-v="1000">1000</button><button role="radio" data-v="2000">2000 Hz</button></div></div>
+            <div class="collapse cf" id="dc-cf-mouse"><div class="inner"></div></div>
+            <button class="row" id="dc-map" data-dc="mouse"><span class="row-l"><b>按键映射</b><small>5 个按键 · 读取自设备</small></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="row"><span class="row-l"><small style="margin:0">鼠标灯效：暂不支持</small></span></div>
+            <div class="row foot"><span class="hint" id="dc-mouse-hint"></span><button class="btn primary" id="dc-mouse-apply" data-apply="mouse">应用</button></div>
+          </div>
+          </div>
+
+          <div class="dc-sec" data-sec="kb">
+          <div class="sh"><span>KX75 键盘</span><span id="dc-kb-tag-wrap"><span class="tag ok" id="dc-kb-tag">与设备读回一致</span></span></div>
+          <div class="group" data-g="kb">
+            <div class="row"><span class="row-l"><b>回报率</b></span><div class="seg small" data-seg="dc-kb-rate" role="radiogroup" aria-label="键盘回报率" data-dc="kb"><i class="seg-thumb"></i><button role="radio" data-v="125">125</button><button role="radio" data-v="250">250</button><button role="radio" data-v="500">500</button><button role="radio" data-v="1000">1000 Hz</button></div></div>
+            <div class="row"><span class="row-l"><b>休眠时间</b><small>无操作后进入休眠</small></span><select class="select" data-f="kb.sleep" data-dc="kb" aria-label="休眠时间"><option value="60">1 分钟</option><option value="300">5 分钟</option><option value="600">10 分钟</option><option value="1800">30 分钟</option><option value="0">从不</option></select></div>
+            <div class="collapse cf" id="dc-cf-kb"><div class="inner"></div></div>
+            <div class="row foot"><span class="hint" id="dc-kb-hint"></span><button class="btn primary" id="dc-kb-apply" data-apply="kb">应用</button></div>
+          </div>
+          <div class="group" style="margin-top:12px">
+            <div class="row"><span class="row-l"><b>低延迟模式</b><small>点击后立即写入并读回</small></span><span class="row-v" data-unk="lowLatency" hidden>—</span><label class="sw" data-sw="lowLatency"><input type="checkbox" role="switch" aria-label="低延迟模式"><span class="sw-knob"></span></label></div>
+            <div class="row"><span class="row-l"><b>Mac 模式</b></span><span class="row-v" data-unk="mac" hidden>—</span><label class="sw" data-sw="mac"><input type="checkbox" role="switch" aria-label="Mac 模式"><span class="sw-knob"></span></label></div>
+            <div class="row"><span class="row-l"><b>Win 锁</b><small>锁定 Windows 键</small></span><span class="row-v" data-unk="winLock" hidden>—</span><label class="sw" data-sw="winLock"><input type="checkbox" role="switch" aria-label="Win 锁"><span class="sw-knob"></span></label></div>
+          </div>
+
+          <div class="sh"><span>KX75 键盘灯效</span><span id="dc-kbl-tag-wrap"><span class="tag ok" id="dc-kbl-tag">与设备读回一致</span></span></div>
+          <div class="group" data-g="kbl">
+            <div class="row"><span class="row-l"><b>模式</b></span><select class="select" data-f="kbl.mode" data-dc="kbl" aria-label="键盘灯效模式"><option value="static">常亮</option><option value="breath">呼吸</option><option value="wave">波浪</option><option value="neon">霓虹</option><option value="ripple">涟漪</option><option value="off">关闭</option></select></div>
+            <div class="slider-row"><label for="dc-kbl-bright">亮度</label><input class="slider" id="dc-kbl-bright" type="range" min="0" max="4" step="1" data-f="kbl.bright" data-dc="kbl"><output data-o="kbl.bright"></output></div>
+            <div class="slider-row"><label for="dc-kbl-speed">速度</label><input class="slider" id="dc-kbl-speed" type="range" min="1" max="5" step="1" data-f="kbl.speed" data-dc="kbl"><output data-o="kbl.speed"></output></div>
+            <div class="row"><span class="row-l"><b>颜色</b></span><div class="seg small" data-seg="dc-kbl-multi" role="radiogroup" aria-label="单色或多彩" data-dc="kbl"><i class="seg-thumb"></i><button role="radio" data-v="mono">单色</button><button role="radio" data-v="multi">多彩</button></div></div>
+            <div class="collapse" id="dc-kbl-rgb"><div class="inner"><div class="row"><span class="row-l"><b>RGB</b><small class="mono" data-o="kbl.rgb"></small></span><input class="cpick" type="color" data-f="kbl.rgb" data-dc="kbl" aria-label="单色 RGB"></div></div></div>
+            <div class="collapse cf" id="dc-cf-kbl"><div class="inner"></div></div>
+            <div class="row foot"><span class="hint" id="dc-kbl-hint"></span><button class="btn primary" id="dc-kbl-apply" data-apply="kbl">应用灯效</button></div>
+          </div>
+          </div>
+
+          <div class="dc-sec" data-sec="lamp">
+          <div class="sh"><span>小米挂灯 1S</span><span id="dc-lamp-tag-wrap"><span class="tag ok" id="dc-lamp-tag">与设备读回一致</span></span></div>
+          <div class="group" data-g="lamp">
+            <div class="row"><span class="row-l"><b>开关</b><small>点击后立即写入并读回</small></span><span class="row-v" data-unk="lampOn" hidden>—</span><label class="sw" data-sw="lampOn"><input type="checkbox" role="switch" aria-label="挂灯开关"><span class="sw-knob"></span></label></div>
+            <div class="slider-row"><label for="dc-lamp-bright">亮度</label><input class="slider" id="dc-lamp-bright" type="range" min="1" max="100" step="1" data-f="lamp.bright" data-dc="lamp"><output data-o="lamp.bright"></output></div>
+            <div class="slider-row"><label for="dc-lamp-ct">色温</label><input class="slider" id="dc-lamp-ct" type="range" min="2700" max="6500" step="100" data-f="lamp.ct" data-dc="lamp"><output data-o="lamp.ct"></output></div>
+            <div class="collapse cf" id="dc-cf-lamp"><div class="inner"></div></div>
+            <div class="row foot"><span class="hint" id="dc-lamp-hint"></span><button class="btn primary" id="dc-lamp-apply" data-apply="lamp">应用</button></div>
+          </div>
+
+          <div class="sh"><span>挂灯连接</span><span><span class="tag ok" id="dc-cfg-tag">与已保存配置一致</span></span></div>
+          <div class="group">
+            <div class="row"><span class="row-l"><b>IP 地址</b><small>局域网地址，路由器重新分配后需更新</small></span><input class="field mono" id="dc-ip" value="192.168.1.50" aria-label="挂灯 IP 地址" spellcheck="false"></div>
+            <div class="row"><span class="row-l"><b>Token</b><small>使用 Windows DPAPI 加密保存，界面只显示末 4 位</small></span><span class="row-v mono" id="dc-token-mask">•••• •••• •••• 7c2e</span><input class="field mono" id="dc-token" type="password" placeholder="32 位十六进制" aria-label="新的挂灯 Token" hidden spellcheck="false"><button class="btn" id="dc-token-edit">更换</button></div>
+            <div class="row foot"><span class="hint" id="dc-cfg-hint">保存后重新连接挂灯。</span><button class="btn primary" id="dc-cfg-save" disabled>保存连接</button></div>
+          </div>
+          </div>
+          </div>
+
+          <div class="group" style="margin-top:20px">
+            <button class="disc" aria-expanded="false" aria-controls="dc-soon">即将支持（二期）<svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="collapse" id="dc-soon"><div class="inner">
+              <div class="row soon"><span class="row-l"><b>鼠标宏</b><small>录制、编辑并绑定到按键</small></span><span class="tag">即将支持</span></div>
+              <div class="row soon"><span class="row-l"><b>键盘按键层</b><small>多层按键映射</small></span><span class="tag">即将支持</span></div>
+              <div class="row soon"><span class="row-l"><b>小米云登录</b><small>从小米账号导入挂灯，免手填 Token</small></span><span class="tag">即将支持</span></div>
+              <div class="row soon"><span class="row-l"><b>鼠标性能项</b><small>抬升高度、静默高度等</small></span><span class="tag">即将支持</span></div>
+            </div></div>
+          </div>
+        </section>
+
+        <div class="group" id="diag" style="margin-top:24px" hidden>
+          <button class="disc" aria-expanded="false"><span class="sq orange" style="width:22px;height:22px;border-radius:6px"><svg class="i" style="width:13px;height:13px"><use href="#i-warn"/></svg></span>部分数据尚未读取 · 查看诊断信息 (2)<svg class="i chev"><use href="#i-chev"/></svg></button>
+          <div class="collapse"><div class="inner"><div class="pad hint" style="padding-top:0">WMI 查询超时：AcerGamingFunction.GetGamingSysInfo（模拟）<br>温度传感器读数超过 6 秒未更新（模拟）</div></div></div>
+        </div>
+
+        <footer class="foot-bar">
+          <span id="foot-read">上次读取 —</span>
+          <button class="btn" id="log-btn" aria-expanded="false"><svg class="i" style="width:14px;height:14px"><use href="#i-list"/></svg>操作记录 <span class="tnum" id="log-count">0</span></button>
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast-host" id="toasts" aria-live="polite"></div>
+
+<!-- 预览工具 -->
+<button class="pv-fab" id="pv-fab" aria-expanded="false">◐ 预览控制</button>
+<div class="pv-panel" id="pv-panel" hidden role="dialog" aria-label="预览控制">
+  <h3>预览控制</h3>
+  <p class="pv-note">模拟数据，仅用于评审视觉与动效；不属于产品界面。</p>
+  <div class="pv-row"><span>场景</span><div class="seg small" data-seg="scn" role="radiogroup" aria-label="场景"><i class="seg-thumb"></i><button role="radio" data-v="ok">正常</button><button role="radio" data-v="stale">过期</button><button role="radio" data-v="auth">待授权</button><button role="radio" data-v="offline">断线</button></div></div>
+  <div class="pv-row"><span>动效速度</span><div class="seg small" data-seg="ts" role="radiogroup" aria-label="动效速度"><i class="seg-thumb"></i><button role="radio" data-v="1">1×</button><button role="radio" data-v="2.5">0.4×</button><button role="radio" data-v="5">0.2×</button></div></div>
+  <div class="pv-row"><span>减少动态效果</span><label class="sw"><input type="checkbox" role="switch" id="pv-rm" aria-label="减少动态效果"><span class="sw-knob"></span></label></div>
+  <div class="pv-row"><span>模拟读数变化（2.5 秒）</span><label class="sw"><input type="checkbox" role="switch" id="pv-sim" aria-label="模拟读数变化" checked><span class="sw-knob"></span></label></div>
+  <div class="pv-row"><span>组件演示</span><span style="display:flex;gap:6px"><button class="btn" id="pv-toast">提示</button><button class="btn" id="pv-dialog">弹窗</button><button class="btn" id="pv-heat">升温</button></span></div>
+  <div class="pv-row"><span>读取不锁操作</span><button class="btn" id="pv-ext">设备端改动并同步</button></div>
+  <div class="pv-row"><span>DC 模块文件夹</span><span style="display:flex;gap:8px;align-items:center"><button class="btn" id="pv-dchash">文件变更</button><label class="sw"><input type="checkbox" role="switch" id="pv-dcmod" aria-label="模拟 Device Center 模块文件夹存在" checked><span class="sw-knob"></span></label></span></div>
+  <div class="pv-row"><span>DC 模块状态</span><span style="display:flex;gap:6px;align-items:center"><select class="select" id="pv-dcstate" aria-label="模拟 Device Center 模块状态"><option value="running">运行中</option><option value="starting">启动中</option><option value="reconnecting">重连中</option><option value="stopped">已停止</option><option value="elsewhere">被其他实例占用</option><option value="incompatible">协议不兼容</option><option value="error">异常退出</option></select><button class="btn" id="pv-exitfail" title="模拟退出时后台保持失败">退出失败</button></span></div>
+  <div class="pv-row"><span>外设演示</span><span style="display:flex;gap:8px;align-items:center"><button class="btn" id="pv-newdev">新设备接入</button><span style="font-size:12px;color:var(--label-2)">KX75</span><label class="sw"><input type="checkbox" role="switch" id="pv-kb" checked aria-label="模拟 KX75 键盘已连接"><span class="sw-knob"></span></label></span></div>
+  <details class="pv-tokens">
+    <summary style="color:var(--label);font-weight:600;cursor:pointer">动效令牌</summary>
+    <code>snappy</code> ζ0.88 · 0.30s → 370ms：分段、导航、弹窗、按压回弹<br>
+    <code>smooth</code> ζ1.0 · 0.36s → 490ms：数字、折叠、曲线、仪表<br>
+    <code>bouncy</code> ζ0.68 · 0.36s → 550ms（过冲 5%）：开关、提示、选中标签<br>
+    <code>gentle</code> 680ms：页面进入，子元素间隔 26ms<br>
+    退出统一 120–200ms ease-in；悬停只改颜色；减少动态效果时只保留 140ms 淡入。
+  </details>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const root = document.documentElement;
+const qs = new URLSearchParams(location.search);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+const pages = {
+  overview: ['设备总览', '查看硬件状态与常用设置。'],
+  fan: ['性能与风扇', '选择性能模式，调整双风扇控制。'],
+  settings: ['设备设置', '灯光、电源与控制台偏好。'],
+  acer: ['Acer 服务保护', 'Central 句柄修补、Handle Guard 看门狗与日志。'],
+  dc: ['Device Center 外设', '鼠标、键盘与屏幕挂灯。']
+};
+const profileNames = { quiet: '安静', balanced: '平衡', performance: '性能', turbo: '极速', eco: '节能' };
+const profileDesc = { quiet: '轻负载与安静环境', balanced: '日常使用，兼顾性能与噪声', performance: '为持续负载提供稳定性能', turbo: '设备允许的最高性能模式', eco: '降低设备功耗' };
+const fanNames = { auto: '自动', max: '最大', custom: '自定义' };
+const effects = [
+  ['static', '常亮 · 四区', 'p-static'], ['breath', '呼吸', 'p-breath'], ['neon', '霓虹', 'p-neon'], ['wave', '波浪', 'p-wave'],
+  ['shift', '渐变', 'p-shift'], ['zoom', '缩放', 'p-zoom'], ['meteor', '流星', 'p-meteor'], ['flash', '闪烁', 'p-flash']
+];
+const monoEffects = ['breath', 'zoom', 'meteor', 'flash'];
+const palette = ['#ff3b30', '#ff9500', '#ffcc00', '#34c759', '#0a84ff', '#5e5ce6', '#ffffff'];
+
+const S = {
+  scn: qs.get('scn') || 'ok',
+  theme: qs.get('theme') || 'light',
+  ts: 1, rm: false, sim: true,
+  page: qs.get('page') === 'plugin' ? (qs.get('plugin') === 'devices' ? 'dc' : 'acer') : qs.get('page') || 'overview',
+  settingsTab: qs.get('tab') || 'light',
+  syncing: false, ext: null,
+  profile: { cur: 'balanced', draft: 'balanced', conflict: false },
+  fan: { cur: 'auto', draft: 'auto', cpu: 60, gpu: 55, curCpu: 60, curGpu: 55 },
+  t: { cpu: 63, gpu: 56, cpuRpm: 2850, gpuRpm: 2600 },
+  batt: { pct: 78, care: true }, ac: true,
+  light: { cur: { effect: 'wave', speed: 5, bright: 80, dir: '1', color: '#0a84ff', zones: ['#0a84ff', '#5e5ce6', '#ff375f', '#ff9f0a'] } },
+  usb: { cur: { on: false, th: '20' }, draft: { on: false, th: '20' } },
+  rule: { cur: { on: true, ac: 'performance', dc: 'quiet' }, draft: null },
+  pref: { cur: { tray: true, restore: true } },
+  thermal: false, curveSel: 'cpu',
+  curves: { cpu: [[45, 30], [65, 50], [80, 75], [90, 100]], gpu: [[45, 30], [60, 45], [75, 70], [85, 100]] },
+  guard: true, lastRead: new Date(), log: []
+};
+S.light.draft = structuredClone(S.light.cur);
+S.rule.draft = { ...S.rule.cur };
+const live = () => S.scn === 'ok';
+const known = () => S.scn === 'ok' || S.scn === 'stale';
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const T = ms => ms * (S.rm ? 0.5 : S.ts);
+
+/* ---------- 滚动数字 ---------- */
+function roll(name, v, dec = 0) {
+  const str = v == null || !Number.isFinite(v) ? '—' : Number(v).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  $$(`[data-roll="${name}"]`).forEach(el => {
+    if (el._s === str) return;
+    const prev = el._s; el._s = str;
+    el.setAttribute('aria-label', str);
+    const shape = s => s.replace(/\d/g, '0');
+    if (prev == null || shape(prev) !== shape(str)) {
+      el.innerHTML = [...str].map(ch => /\d/.test(ch)
+        ? `<span class="rc" aria-hidden="true"><span class="rs" style="--d:${ch}">${[...'0123456789'].map(n => `<span>${n}</span>`).join('')}</span></span>`
+        : `<span class="rp" aria-hidden="true">${ch}</span>`).join('');
+      return;
+    }
+    [...str].forEach((ch, i) => { if (/\d/.test(ch)) el.children[i].firstChild.style.setProperty('--d', ch); });
+  });
+}
+
+/* ---------- 文本交换与标签 ---------- */
+function swapText(el, text) {
+  if (!el || el.textContent === text) return;
+  if (S.rm || !el.isConnected || el.offsetParent === null) { el.textContent = text; return; }
+  el.animate([{ opacity: 1 }, { opacity: 0, transform: 'translateY(-3px)' }], { duration: T(110), easing: 'cubic-bezier(.4,0,1,1)' }).onfinish = () => {
+    el.textContent = text;
+    el.animate([{ opacity: 0, transform: 'translateY(3px)' }, { opacity: 1, transform: 'none' }], { duration: T(260), easing: 'cubic-bezier(.22,1,.36,1)' });
+  };
+}
+function setTag(el, text, kind) {
+  const cls = 'tag' + (kind ? ' ' + kind : '');
+  if (el.textContent === text && el.className.replace(' pop', '') === cls) return;
+  el.textContent = text; el.className = cls;
+  void el.offsetWidth; el.classList.add('pop');
+}
+
+/* ---------- 分段控件 ---------- */
+const segHandlers = {};
+const ro = new ResizeObserver(es => es.forEach(e => placeThumb(e.target, true)));
+function placeThumb(seg, instant) {
+  const btn = seg.querySelector('[aria-checked="true"]');
+  const thumb = seg.querySelector('.seg-thumb');
+  if (!btn || !seg.offsetWidth) { thumb.style.opacity = btn ? '' : '0'; return; }
+  if (instant) seg.classList.add('no-anim');
+  thumb.style.opacity = '';
+  thumb.style.width = btn.offsetWidth + 'px';
+  thumb.style.transform = `translateX(${btn.offsetLeft}px)`;
+  if (instant) { void thumb.offsetWidth; requestAnimationFrame(() => seg.classList.remove('no-anim')); }
+}
+function segSet(name, v, user) {
+  const seg = $(`.seg[data-seg="${name}"]`);
+  const prev = seg.dataset.value;
+  seg.dataset.value = v;
+  $$(':scope > button', seg).forEach(b => { const on = b.dataset.v === String(v); b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; });
+  placeThumb(seg, !user && prev === undefined);
+  if (user && prev !== String(v)) segHandlers[name]?.(String(v), prev);
+}
+function segCurrent(name, v) {
+  $$(`.seg[data-seg="${name}"] > button`).forEach(b => b.toggleAttribute('data-current', v != null && b.dataset.v === String(v)));
+}
+function segDisable(seg, off) {
+  seg.classList.toggle('disabled', off);
+  $$(':scope > button', seg).forEach(b => { b.disabled = off || b.hasAttribute('data-cap-off'); });
+}
+$$('.seg').forEach(seg => ro.observe(seg));
+document.addEventListener('click', e => {
+  const b = e.target.closest('.seg > button');
+  if (b && !b.disabled) segSet(b.parentElement.dataset.seg, b.dataset.v, true);
+});
+document.addEventListener('keydown', e => {
+  const b = e.target.closest?.('.seg > button');
+  if (!b || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+  const list = $$(':scope > button:not(:disabled)', b.parentElement);
+  const next = list[(list.indexOf(b) + (e.key === 'ArrowRight' ? 1 : -1) + list.length) % list.length];
+  segSet(b.parentElement.dataset.seg, next.dataset.v, true); next.focus(); e.preventDefault();
+});
+
+/* ---------- 折叠 ---------- */
+document.addEventListener('click', e => {
+  const d = e.target.closest('.disc');
+  if (!d) return;
+  const open = d.getAttribute('aria-expanded') !== 'true';
+  d.setAttribute('aria-expanded', open);
+  const panel = d.nextElementSibling;
+  panel.classList.toggle('open', open);
+  panel.querySelector('.inner').inert = !open;
+});
+function collapse(el, open) { el.classList.toggle('open', open); el.querySelector('.inner').inert = !open; }
+$$('.collapse').forEach(c => { c.querySelector('.inner').inert = !c.classList.contains('open'); });
+
+/* ---------- 提示、弹窗、记录 ---------- */
+function toast(msg, kind = 'ok', sub = '') {
+  const icon = { ok: ['green', 'i-check'], warn: ['orange', 'i-warn'], err: ['pink', 'i-warn'], info: ['blue', 'i-refresh'] }[kind];
+  const el = document.createElement('div');
+  el.className = 'toast'; el.setAttribute('role', 'status');
+  el.innerHTML = `<span class="sq ${icon[0]}"><svg class="i"><use href="#${icon[1]}"/></svg></span><span>${msg}${sub ? `<small>${sub}</small>` : ''}</span>`;
+  const host = $('#toasts');
+  host.prepend(el);
+  while (host.children.length > 2) host.lastElementChild.remove();
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), T(200)); }, 3200);
+}
+function addLog(text) {
+  S.log.unshift({ t: new Date().toLocaleTimeString('zh-CN', { hour12: false }), text });
+  roll('logc', S.log.length); $('#log-count').textContent = S.log.length;
+}
+function confirmDialog({ title, body, ok = '确认', cancel = '取消', danger = false }) {
+  return new Promise(res => {
+    const last = document.activeElement;
+    const sc = document.createElement('div');
+    sc.className = 'scrim';
+    sc.innerHTML = `<div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="dlg-t"><h2 id="dlg-t">${title}</h2>${body.map(p => `<p>${p}</p>`).join('')}<div class="actions"><button class="btn" data-a="0">${cancel}</button><button class="btn ${danger ? 'danger' : 'primary'}" data-a="1">${ok}</button></div></div>`;
+    document.body.append(sc);
+    $('[data-a="0"]', sc).focus();
+    const close = v => {
+      document.removeEventListener('keydown', onKey);
+      sc.classList.add('out');
+      setTimeout(() => { sc.remove(); last?.focus?.(); }, T(180));
+      res(v);
+    };
+    const onKey = e => {
+      if (e.key === 'Escape') close(false);
+      if (e.key === 'Tab') { const bs = $$('button', sc); const i = bs.indexOf(document.activeElement); bs[(i + (e.shiftKey ? -1 : 1) + bs.length) % bs.length].focus(); e.preventDefault(); }
+    };
+    document.addEventListener('keydown', onKey);
+    sc.addEventListener('click', e => { if (e.target === sc) close(false); const a = e.target.closest('[data-a]'); if (a) close(a.dataset.a === '1'); });
+  });
+}
+async function pendingBtn(btn, label, fn) {
+  const html = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = `<span class="spinner"></span>${label}`;
+  await wait(850);
+  btn.innerHTML = html;
+  await fn();
+  renderAll();
+}
+
+/* ---------- 导航与页面过渡 ---------- */
+const main = $('#main');
+function placeNav(instant) {
+  const btn = $(`#nav button[data-page="${S.page}"]`);
+  const pill = $('.nav-pill');
+  if (instant) pill.style.transition = 'none';
+  pill.style.transform = `translateY(${btn.offsetTop}px)`;
+  pill.style.height = btn.offsetHeight + 'px';
+  if (instant) { void pill.offsetWidth; pill.style.transition = ''; }
+  $$('#nav button').forEach(b => b.toggleAttribute('aria-current', b === btn) || b.removeAttribute('aria-current'));
+  $$('#nav button').forEach(b => { if (b === btn) b.setAttribute('aria-current', 'page'); });
+}
+function stagger(el) { [...el.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 10))); }
+function showPage(instant) {
+  const next = $(`.page[data-page="${S.page}"]`);
+  const head = $('#head');
+  $('#page-title').textContent = pages[S.page][0];
+  $('#page-sub').textContent = pages[S.page][1];
+  $('#tb-title').textContent = pages[S.page][0];
+  head.classList.remove('leaving', 'enter'); void head.offsetWidth; head.classList.add('enter');
+  stagger(head);
+  stagger(next);
+  next.classList.add('active');
+  if (S.page === 'settings') showPane('settings', S.settingsTab, 0);
+  if (S.page === 'fan') drawChart();
+  $$('.seg', next).forEach(s => placeThumb(s, true));
+}
+function go(page, opts = {}) {
+  if (page === 'plugin') page = 'acer';
+  if (page === 'dc' && !DC.present) return;
+  if (opts.tab) { S.settingsTab = opts.tab; segSet('settingsTab', opts.tab); }
+  if (page === S.page && !opts.force) { if (opts.tab) showPane('settings', opts.tab, 1); return; }
+  const cur = $('.page.active');
+  S.page = page; placeNav();
+  if (!cur || opts.instant) { cur?.classList.remove('active'); showPage(true); return; }
+  cur.classList.add('leaving'); $('#head').classList.add('leaving');
+  setTimeout(() => {
+    cur.classList.remove('active', 'leaving');
+    main._sbMute = performance.now() + 700;
+    main.scrollTop = 0;
+    showPage();
+  }, T(130));
+}
+$('#nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) go(b.dataset.page); });
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go, { tab: g.dataset.tab }); });
+
+const paneOrder = { settings: ['light', 'aux', 'app'] };
+function showPane(group, v, dir) {
+  const host = $(`.page[data-page="${group}"]`);
+  $$('.pane', host).forEach(p => { const on = p.dataset.pane === v; p.classList.toggle('active', on); p.inert = !on; if (on) p.style.setProperty('--dir', dir); });
+  $$('.seg', host).forEach(s => placeThumb(s, true));
+  segSet('settingsTab', v);
+}
+segHandlers.settingsTab = (v, prev) => { S.settingsTab = v; const o = paneOrder.settings; showPane('settings', v, o.indexOf(v) > o.indexOf(prev) ? 1 : -1); };
+
+/* ---------- 侧栏展开/收起 ---------- */
+const SIDE_KEY = 'acer-preview-sidebar';
+const sideCollapsed = () => root.dataset.side === 'collapsed';
+const savedSide = () => { try { return localStorage.getItem(SIDE_KEY) || 'expanded'; } catch { return 'expanded'; } };
+function setSide(state, persist) {
+  root.dataset.side = state;
+  const t = $('#side-toggle'), c = state === 'collapsed';
+  t.setAttribute('aria-expanded', !c);
+  t.setAttribute('aria-label', c ? '展开侧栏' : '收起侧栏');
+  t.dataset.tip = (c ? '展开侧栏' : '收起侧栏') + ' · Ctrl+B';
+  if (persist) try { localStorage.setItem(SIDE_KEY, state); } catch {}
+  hideTip();
+}
+$('#side-toggle').addEventListener('click', () => setSide(sideCollapsed() ? 'expanded' : 'collapsed', true));
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key?.toLowerCase() === 'b') { e.preventDefault(); $('#side-toggle').click(); }
+});
+let narrowWin = innerWidth < 900;
+addEventListener('resize', () => {
+  const n = innerWidth < 900;
+  if (n !== narrowWin) { narrowWin = n; setSide(n ? 'collapsed' : savedSide(), false); }
+});
+const tip = document.createElement('div');
+tip.className = 'side-tip'; tip.setAttribute('role', 'tooltip');
+document.body.append(tip);
+let tipEl = null, tipTimer = 0, tipWarm = 0;
+function hideTip() { clearTimeout(tipTimer); tipEl = null; tip.classList.remove('on'); }
+function showTip(t, now) {
+  if (t === tipEl) return;
+  hideTip();
+  if (!t || !(sideCollapsed() || t.id === 'side-toggle')) return;
+  tipEl = t;
+  tipTimer = setTimeout(() => {
+    const r = t.getBoundingClientRect();
+    tip.textContent = t.dataset.tip;
+    tip.style.left = r.right + 10 + 'px'; tip.style.top = r.top + r.height / 2 + 'px';
+    tip.classList.add('on'); tipWarm = performance.now();
+  }, now || performance.now() - tipWarm < 600 ? 0 : 380);
+}
+$('#sidebar').addEventListener('pointerover', e => showTip(e.target.closest('[data-tip]')));
+$('#sidebar').addEventListener('pointerleave', () => { if (tip.classList.contains('on')) tipWarm = performance.now(); hideTip(); });
+$('#sidebar').addEventListener('focusin', e => { if (e.target.matches(':focus-visible')) showTip(e.target.closest('[data-tip]'), true); });
+$('#sidebar').addEventListener('focusout', hideTip);
+$('#sidebar').addEventListener('click', hideTip);
+
+/* ---------- 覆盖式滚动条：滚动或悬停时出现，停止 1 秒后淡出 ---------- */
+function isScroller(el) {
+  if (!(el instanceof Element) || el === root || el === document.body || el.closest('.sb')) return false;
+  const o = getComputedStyle(el).overflowY;
+  return (o === 'auto' || o === 'scroll') && el.scrollHeight > el.clientHeight + 1;
+}
+function sbGeo(o) {
+  const el = o.el;
+  if (!el.isConnected) return null;
+  const max = el.scrollHeight - el.clientHeight;
+  if (max <= 1) return null;
+  const r = el.getBoundingClientRect();
+  const top = r.top + (el === main ? 54 : 3), h = r.bottom - 3 - top;
+  return { top, h, th: Math.max(28, h * el.clientHeight / el.scrollHeight), max, right: r.right };
+}
+function sbPlace(o) {
+  const g = sbGeo(o);
+  if (!g) { o.sb.classList.remove('on'); return false; }
+  Object.assign(o.sb.style, { top: g.top + 'px', left: g.right - 15 + 'px', height: g.h + 'px' });
+  o.thumb.style.height = g.th + 'px';
+  o.thumb.style.transform = `translateY(${(g.h - g.th) * Math.min(1, o.el.scrollTop / g.max)}px)`;
+  return true;
+}
+function sbLater(o) {
+  clearTimeout(o.timer);
+  o.timer = setTimeout(() => {
+    if (o.hover || o.drag) return;
+    o.sb.classList.remove('on');
+    if (!o.el.isConnected) o.sb.remove();
+  }, 1000);
+}
+function sbShow(o) { if (sbPlace(o)) o.sb.classList.add('on'); sbLater(o); }
+function sbOf(el) {
+  if (el._sb?.sb.isConnected) return el._sb;
+  const sb = document.createElement('div');
+  sb.className = 'sb'; sb.setAttribute('aria-hidden', 'true'); sb.innerHTML = '<div class="sb-thumb"></div>';
+  document.body.append(sb);
+  const o = el._sb = { el, sb, thumb: sb.firstChild, hover: false, drag: null, timer: 0 };
+  const to = top => el.scrollTo({ top, behavior: 'instant' });
+  sb.addEventListener('pointerenter', () => { o.hover = true; sbShow(o); });
+  sb.addEventListener('pointerleave', () => { o.hover = false; sbLater(o); });
+  sb.addEventListener('wheel', e => { e.preventDefault(); el.scrollBy({ top: e.deltaY, behavior: 'instant' }); }, { passive: false });
+  sb.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    const g = sbGeo(o); if (!g) return;
+    if (e.target !== o.thumb) to((e.clientY - g.top - g.th / 2) / (g.h - g.th) * g.max);
+    o.drag = { y: e.clientY, st: el.scrollTop };
+    sb.classList.add('drag'); sb.setPointerCapture(e.pointerId);
+  });
+  sb.addEventListener('pointermove', e => {
+    if (!o.drag) return;
+    const g = sbGeo(o); if (g) to(o.drag.st + (e.clientY - o.drag.y) / (g.h - g.th) * g.max);
+  });
+  const end = () => { if (!o.drag) return; o.drag = null; sb.classList.remove('drag'); sbLater(o); };
+  sb.addEventListener('pointerup', end); sb.addEventListener('pointercancel', end);
+  return o;
+}
+document.addEventListener('scroll', e => {
+  const el = e.target;
+  if (!(el instanceof Element) || el._sbMute > performance.now()) return;
+  sbShow(sbOf(el));
+}, { capture: true, passive: true });
+let sbTarget = null, sbHovered = null;
+document.addEventListener('pointermove', e => {
+  if (e.target === sbTarget) return;
+  sbTarget = e.target;
+  if (!(e.target instanceof Element) || e.target.closest('.sb')) return;
+  let el = e.target;
+  while (el && !isScroller(el)) el = el.parentElement;
+  if (el === sbHovered) return;
+  sbHovered = el;
+  if (el) sbShow(sbOf(el));
+}, { passive: true });
+
+/* 大标题滚出后，工具栏显示小标题与毛玻璃 */
+new IntersectionObserver(([e]) => $('#toolbar').classList.toggle('scrolled', !e.isIntersecting), { root: main, rootMargin: '-52px 0px 0px 0px' }).observe($('#page-title'));
+
+/* ---------- 主题：从按钮位置圆形展开 ---------- */
+function applyTheme(t, origin) {
+  S.theme = t;
+  const resolved = t === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t;
+  const set = () => {
+    root.dataset.theme = resolved;
+    $('#theme-btn use').setAttribute('href', resolved === 'dark' ? '#i-sun' : '#i-moon');
+  };
+  if (!origin || !document.startViewTransition || S.rm || root.dataset.theme === resolved) { set(); return; }
+  const vt = document.startViewTransition(set);
+  vt.ready.then(() => {
+    const r = Math.hypot(Math.max(origin.x, innerWidth - origin.x), Math.max(origin.y, innerHeight - origin.y));
+    root.animate({ clipPath: [`circle(0px at ${origin.x}px ${origin.y}px)`, `circle(${r}px at ${origin.x}px ${origin.y}px)`] },
+      { duration: T(640), easing: 'cubic-bezier(.22,1,.36,1)', pseudoElement: '::view-transition-new(root)' });
+  });
+}
+const vtStyle = document.createElement('style');
+vtStyle.textContent = '::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}';
+document.head.append(vtStyle);
+$('#theme-btn').addEventListener('click', e => {
+  const r = e.currentTarget.getBoundingClientRect();
+  const t = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(t, { x: r.left + r.width / 2, y: r.top + r.height / 2 });
+  segSet('theme', t);
+});
+segHandlers.theme = v => { const b = $(`.seg[data-seg="theme"] [data-v="${v}"]`).getBoundingClientRect(); applyTheme(v, { x: b.left + b.width / 2, y: b.top + b.height / 2 }); };
+
+/* ---------- 刷新：读取不锁操作。按钮可点（重复点击合并为同一次同步），控件保持可编辑 ---------- */
+let syncP = null;
+function readProfile(next) {
+  const p = S.profile;
+  if (!next || next === p.cur) return false;
+  const edited = p.draft !== p.cur;
+  if (!edited) p.draft = next;
+  p.conflict = edited && p.draft !== next;
+  p.cur = next;
+  return p.conflict;
+}
+function sync() {
+  if (syncP) return syncP;
+  const btn = $('#refresh-btn'), a = $('#rf-a'), b = $('#rf-b');
+  btn.classList.add('syncing'); btn.setAttribute('aria-busy', 'true');
+  a.style.opacity = 0; a.style.transform = 'translateY(-6px)'; b.style.opacity = 1; b.style.transform = 'none';
+  S.syncing = true; renderDC();
+  syncP = wait(1400).then(() => {
+    const ext = S.ext || {}; S.ext = null;
+    let conflicts = 0;
+    if (S.scn === 'stale') toast('设备状态仍读取失败', 'warn', '保留上次读数，当前状态未确认');
+    else if (live()) { if (!S.thermal && readProfile(ext.profile)) conflicts++; S.lastRead = new Date(); }
+    if (dcLive()) conflicts += dcReadAll(ext);
+    if (conflicts) toast('设备状态已变化', 'warn', `${conflicts} 处草稿与读回不一致，已保留草稿`);
+    S.syncing = false;
+    btn.classList.remove('syncing'); btn.removeAttribute('aria-busy');
+    a.style.opacity = 1; a.style.transform = 'none'; b.style.opacity = 0; b.style.transform = 'translateY(6px)';
+    syncP = null;
+    tick(true);
+  });
+  return syncP;
+}
+$('#refresh-btn').addEventListener('click', () => sync());
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-adopt],[data-keep]');
+  if (!el) return;
+  const adopt = el.hasAttribute('data-adopt'), id = el.dataset.adopt || el.dataset.keep;
+  if (id === 'profile') { if (adopt) S.profile.draft = S.profile.cur; S.profile.conflict = false; }
+  else { const g = DC.g[id]; if (adopt) for (const f of g.conflict || []) g.draft[f] = g.cur[f]; g.conflict = null; }
+  renderAll();
+});
+
+/* ---------- 状态与横幅 ---------- */
+function bannerHTML() {
+  if (S.scn === 'auth') return ['orange', 'i-lock', '需要授权设备访问', '连接设备以查看状态，并使用已验证的控制功能。此次授权不会修改硬件设置，取消后不会自动重试。', '<button class="btn primary" data-auth>授权设备访问</button>'];
+  if (S.scn === 'stale') return ['orange', 'i-warn', '设备状态读取失败', 'WMI 查询超时（模拟）。下方为上次读数，不代表当前设备状态；控制已暂停。', '<button class="btn" data-retry>重试</button>'];
+  if (S.scn === 'offline') return ['pink', 'i-warn', '设备读取连接已中断', '硬件读取进程已退出。重新授权后恢复读取；未确认前不显示任何当前值。', '<button class="btn primary" data-auth>重新授权设备访问</button>'];
+  return null;
+}
+let bannerKey = null;
+function renderBanner() {
+  const b = bannerHTML(), host = $('#banner-host'), slot = $('#banner-slot');
+  const key = b ? S.scn : null;
+  if (key === bannerKey) return;
+  bannerKey = key;
+  if (b) {
+    slot.innerHTML = `<div class="banner" role="alert"><span class="sq ${b[0]}"><svg class="i"><use href="#${b[1]}"/></svg></span><div class="grow"><b>${b[2]}</b><p>${b[3]}</p></div>${b[4]}</div>`;
+    host.classList.add('open');
+  } else host.classList.remove('open');
+}
+document.addEventListener('click', async e => {
+  const a = e.target.closest('[data-auth]');
+  if (a) { a.disabled = true; a.innerHTML = '<span class="spinner"></span>等待授权…'; await wait(1100); setScenario('ok'); toast('设备访问已授权', 'ok', '状态已读回，控制功能可用'); addLog('授权设备访问 · 成功'); }
+  const r = e.target.closest('[data-retry]');
+  if (r) { r.disabled = true; r.innerHTML = '<span class="spinner"></span>重试中…'; await wait(900); setScenario('ok'); toast('设备状态已恢复读取', 'ok'); }
+});
+function setScenario(v) { S.scn = v; segSet('scn', v); if (v === 'ok') S.lastRead = new Date(); renderAll(); tick(true); }
+
+function renderStatus() {
+  const m = { ok: ['ok', '已连接', '硬件已连接'], stale: ['wn', '读数过期', '读数已过期'], auth: ['wn', '待授权', '设备待授权'], offline: ['er', '已断线', '连接不可用'] }[S.scn];
+  $('#chip-conn').className = 'chip ' + m[0]; swapText($('#chip-conn span'), m[1]);
+  $('#side-conn').className = 'conn ' + m[0]; $('#side-conn span').textContent = m[2];
+  $('#foot-mini').className = 'foot-mini ' + m[0]; $('#foot-mini').dataset.tip = 'Predator PHN16-71 · ' + m[2];
+  swapText($('#chip-power span'), known() ? (S.ac ? '已接电' : '电池供电') : '电源未知');
+  $('#chip-batt').hidden = !known();
+  roll('batt', known() ? S.batt.pct : null);
+  renderBanner();
+  $('#diag').hidden = S.scn !== 'stale';
+  $$('[data-dev]').forEach(el => el.matches('.seg') ? segDisable(el, !live()) : (el.disabled = !live()));
+  const t = S.lastRead.toLocaleTimeString('zh-CN', { hour12: false });
+  $('#foot-read').textContent = known() ? `上次读取 ${t}${S.scn === 'stale' ? '（已过期）' : ''}` : '尚无设备读数';
+}
+
+/* ---------- 遥测 ---------- */
+const C = 2 * Math.PI * 52, ARC = C * 0.75;
+$$('.g-track').forEach(c => c.style.strokeDasharray = `${ARC} ${C}`);
+function gauge(key, v) {
+  const g = $(`[data-gauge="${key}"]`), val = $('.g-val', g);
+  const has = known() && v != null;
+  const f = has ? Math.max(0.02, Math.min(1, v / 105)) : 0;
+  val.style.strokeDasharray = `${ARC * f} ${C}`;
+  val.style.opacity = has ? 1 : 0;
+  g.classList.toggle('stale', S.scn === 'stale');
+  g.classList.toggle('empty', !has);
+  g.classList.toggle('warm', has && v >= 85 && v < 95);
+  g.classList.toggle('hot', has && v >= 95);
+  swapText($('.g-sub', g), !known() ? '等待读取温度' : S.scn === 'stale' ? '上次设备读数' : v >= 95 ? '温度偏高' : '当前设备温度');
+}
+function tick(force) {
+  if (live() && S.sim && !force) {
+    const j = (x, d, lo, hi) => Math.max(lo, Math.min(hi, Math.round(x + (Math.random() - 0.5) * d)));
+    S.t.cpu = j(S.t.cpu, 6, 48, 99); S.t.gpu = j(S.t.gpu, 5, 42, 90);
+    S.lastRead = new Date();
+  }
+  const fanPct = (k, temp) => S.fan.cur === 'max' ? 100 : S.fan.cur === 'custom' ? (k === 'cpu' ? S.fan.curCpu : S.fan.curGpu) : Math.min(100, Math.max(25, Math.round((temp - 35) * 1.25)));
+  const cp = fanPct('cpu', S.t.cpu), gp = fanPct('gpu', S.t.gpu);
+  S.t.cpuRpm = Math.round(cp * 58 / 10) * 10; S.t.gpuRpm = Math.round(gp * 55 / 10) * 10;
+  const k = known();
+  gauge('cpu', S.t.cpu); gauge('gpu', S.t.gpu);
+  roll('cpuT', k ? S.t.cpu : null); roll('gpuT', k ? S.t.gpu : null);
+  roll('cpuRpm', k ? S.t.cpuRpm : null); roll('gpuRpm', k ? S.t.gpuRpm : null);
+  roll('cpuRpm2', k ? S.t.cpuRpm : null); roll('gpuRpm2', k ? S.t.gpuRpm : null);
+  $('#m-cpu').style.setProperty('--v', k ? cp / 100 : 0); $('#m-gpu').style.setProperty('--v', k ? gp / 100 : 0);
+  $('#fan-cpu-t').textContent = k ? S.t.cpu + '°C' : '—'; $('#fan-gpu-t').textContent = k ? S.t.gpu + '°C' : '—';
+  roll('plCpu', live() ? 0.08 + Math.random() * 0.1 : null, 2);
+  roll('plWs', live() ? 18.2 + Math.random() * 0.5 : null, 2);
+  roll('plH', live() ? 1930 + Math.round(Math.random() * 20) : null);
+  renderAll();
+  $('#ov-read').textContent = !k ? '—' : S.scn === 'stale' ? '读数已过期' : '刚刚';
+  $('#ov-read-sub').textContent = k ? '记录时间 ' + S.lastRead.toLocaleTimeString('zh-CN', { hour12: false }) : '尚无记录';
+  if (S.page === 'fan') moveNow();
+}
+
+/* ---------- 总览 ---------- */
+function renderOverview() {
+  const k = known();
+  const lc = S.light.cur;
+  swapText($('#ov-profile'), k ? profileNames[S.profile.cur] : '—');
+  swapText($('#ov-fan'), k ? (S.thermal ? '温控曲线' : fanNames[S.fan.cur]) : '—');
+  swapText($('#ov-light'), k ? `${effects.find(e => e[0] === lc.effect)[1]} · 亮度 ${lc.bright}%` : '—');
+  swapText($('#ov-batt'), k ? (S.batt.care ? '已开启' : '已关闭') : '—');
+  $('#ov-src').textContent = S.scn === 'stale' ? '上次读数 · 已过期' : k ? '设备读回' : '等待读取';
+}
+
+/* ---------- 性能与风扇 ---------- */
+segHandlers.profile = v => { S.profile.draft = v; if (v === S.profile.cur) S.profile.conflict = false; renderFan(); };
+segHandlers.fanmode = v => { S.fan.draft = v; renderFan(); };
+function renderFan() {
+  const k = known(), p = S.profile;
+  segSet('profile', p.draft); segCurrent('profile', k ? p.cur : null);
+  const pDirty = p.draft !== p.cur;
+  setTag($('#profile-tag'), !k ? '尚无设备读数' : pDirty ? '待应用 · ' + profileNames[p.draft] : '当前 · ' + profileNames[p.cur], !k ? '' : pDirty ? 'draft' : 'ok');
+  swapText($('#profile-desc'), profileDesc[p.draft] + (pDirty ? ' · 尚未应用' : ''));
+  const pcf = p.conflict && pDirty && k;
+  if (pcf) $('#profile-cf-t').textContent = '设备已变为 ' + profileNames[p.cur];
+  collapse($('#profile-cf'), pcf);
+  $('#profile-hint').textContent = S.scn === 'auth' ? '设备读取权限未确认，请先授权。' : !live() ? '设备状态未确认，暂不能切换性能模式。' : S.thermal ? '温控曲线运行中，性能模式切换已暂停。' : '设备读回确认后，当前模式才会更新。';
+  $('#profile-apply').disabled = !live() || !pDirty || S.thermal;
+  if (S.thermal) segDisable($('.seg[data-seg="profile"]'), true);
+
+  const f = S.fan;
+  segSet('fanmode', f.draft); segCurrent('fanmode', k ? f.cur : null);
+  collapse($('#fan-custom'), f.draft === 'custom');
+  const fDirty = f.draft !== f.cur || (f.draft === 'custom' && (f.cpu !== f.curCpu || f.gpu !== f.curGpu));
+  setTag($('#fan-tag'), !k ? '模式未知' : S.thermal ? '由温控曲线控制' : fDirty ? '待应用 · ' + fanNames[f.draft] : '当前 · ' + fanNames[f.cur], !k ? '' : S.thermal ? 'draft' : fDirty ? 'draft' : 'ok');
+  $('#fan-hint').textContent = !live() ? '连接设备并获取控制权限后可调整。' : S.thermal ? '温控曲线运行中，手动风扇控制已暂停。' : fDirty ? `待应用：${fanNames[f.draft]}${f.draft === 'custom' ? ` · CPU ${f.cpu}% / GPU ${f.gpu}%` : ''}` : '与当前设置一致。';
+  $('#fan-apply').disabled = !live() || !fDirty || S.thermal;
+  if (S.thermal) { segDisable($('.seg[data-seg="fanmode"]'), true); $('#s-cpu').disabled = $('#s-gpu').disabled = true; }
+  swapText($('#fan-live-mode'), !k ? '模式未知' : S.thermal ? '温控曲线' : fanNames[f.cur]);
+
+  setTag($('#th-tag'), !k ? '状态未确认' : S.thermal ? '运行中' : '已停止', S.thermal ? 'ok' : '');
+  const err = validate();
+  $('#th-hint').textContent = err || (S.thermal ? `CPU 目标 ${curveAt('cpu', S.t.cpu)}% · GPU 目标 ${curveAt('gpu', S.t.gpu)}%` : '启动前会再次确认。程序被强制终止时无法保证恢复。');
+  $('#th-hint').classList.toggle('err-text', !!err);
+  $('#th-start').hidden = S.thermal; $('#th-stop').hidden = !S.thermal;
+  $('#th-start').disabled = !live() || !!err || !S.ac;
+  $('#th-save').disabled = !!err;
+  $('#th-stop').disabled = false;
+}
+for (const k of ['cpu', 'gpu']) {
+  $('#s-' + k).addEventListener('input', e => {
+    S.fan[k] = +e.target.value; e.target.style.setProperty('--p', (e.target.value - 20) / 80 * 100 + '%');
+    $('#o-' + k).textContent = e.target.value + '%'; renderFan();
+  });
+}
+$('#profile-apply').addEventListener('click', e => pendingBtn(e.currentTarget, '应用中…', () => {
+  S.profile.cur = S.profile.draft; S.profile.conflict = false; toast(`性能模式：${profileNames[S.profile.cur]}`, 'ok', '设备读回确认'); addLog(`应用性能模式 ${profileNames[S.profile.cur]} · 读回一致`);
+}));
+$('#fan-apply').addEventListener('click', e => pendingBtn(e.currentTarget, '应用中…', () => {
+  S.fan.cur = S.fan.draft; S.fan.curCpu = S.fan.cpu; S.fan.curGpu = S.fan.gpu; tick(true);
+  toast(`风扇模式：${fanNames[S.fan.cur]}`, 'ok', '设备读回确认'); addLog(`应用风扇 ${fanNames[S.fan.cur]} · 读回一致`);
+}));
+
+/* 温控曲线图 */
+const X = c => 40 + (c - 20) / 90 * 500, Y = p => 186 - p / 100 * 166;
+function curvePath(pts) { return pts.length ? 'M' + pts.map(([c, p]) => `${X(c).toFixed(1)} ${Y(p).toFixed(1)}`).join(' L') : ''; }
+function curveAt(k, temp) {
+  const pts = S.curves[k]; if (!pts.length) return '—';
+  if (temp <= pts[0][0]) return pts[0][1];
+  for (let i = 1; i < pts.length; i++) if (temp <= pts[i][0]) { const [c0, p0] = pts[i - 1], [c1, p1] = pts[i]; return Math.round(p0 + (p1 - p0) * (temp - c0) / (c1 - c0)); }
+  return pts.at(-1)[1];
+}
+function validate() {
+  for (const k of ['cpu', 'gpu']) {
+    const pts = S.curves[k];
+    if (pts.length < 2) return `${k.toUpperCase()} 曲线至少需要 2 个点。`;
+    for (let i = 0; i < pts.length; i++) {
+      const [c, p] = pts[i];
+      if (!Number.isFinite(c) || c < 1 || c > 125 || !Number.isFinite(p) || p < 0 || p > 100) return `${k.toUpperCase()} 第 ${i + 1} 点超出范围（温度 1–125°C，风扇 0–100%）。`;
+      if (i && c <= pts[i - 1][0]) return `${k.toUpperCase()} 第 ${i + 1} 点温度需高于前一点。`;
+    }
+  }
+  return '';
+}
+function drawChart() {
+  const svg = $('#chart');
+  if (!svg.dataset.built) {
+    let g = '<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".18"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient><linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--indigo)" stop-opacity=".18"/><stop offset="1" stop-color="var(--indigo)" stop-opacity="0"/></linearGradient></defs>';
+    for (const p of [0, 25, 50, 75, 100]) g += `<line class="grid" x1="40" x2="540" y1="${Y(p)}" y2="${Y(p)}"/><text x="32" y="${Y(p) + 3}" text-anchor="end">${p}%</text>`;
+    for (const c of [20, 40, 60, 80, 100]) g += `<text x="${X(c)}" y="203" text-anchor="middle">${c}°C</text>`;
+    g += `<line class="now" id="now" x1="0" x2="0" y1="20" y2="186"/>`;
+    g += `<path class="area" id="area-cpu" fill="url(#ga)"/><path class="area" id="area-gpu" fill="url(#gb)"/>`;
+    g += `<path class="curve gpu" id="c-gpu"/><path class="curve cpu" id="c-cpu"/><g id="pts"></g>`;
+    svg.innerHTML = g; svg.dataset.built = 1;
+  }
+  for (const k of ['cpu', 'gpu']) {
+    const pts = S.curves[k].filter(([c, p]) => Number.isFinite(c) && Number.isFinite(p));
+    const d = curvePath(pts);
+    const sel = S.curveSel === k;
+    $('#c-' + k).style.d = d ? `path("${d}")` : 'none';
+    $('#c-' + k).classList.toggle('dim', !sel);
+    const area = pts.length ? `${d} L${X(pts.at(-1)[0]).toFixed(1)} 186 L${X(pts[0][0]).toFixed(1)} 186 Z` : '';
+    $('#area-' + k).style.d = area ? `path("${area}")` : 'none';
+    $('#area-' + k).style.opacity = sel ? 1 : 0;
+  }
+  const g = $('#pts'), pts = S.curves[S.curveSel];
+  while (g.children.length > pts.length) g.lastChild.remove();
+  while (g.children.length < pts.length) {
+    const n = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    n.setAttribute('class', 'pt'); n.innerHTML = '<circle r="0" cx="0" cy="0"/>';
+    g.append(n);
+    requestAnimationFrame(() => n.firstChild.setAttribute('r', 5));
+  }
+  [...g.children].forEach((n, i) => {
+    const [c, p] = pts[i]; const ok = Number.isFinite(c) && Number.isFinite(p);
+    n.style.transform = ok ? `translate(${X(c)}px, ${Y(p)}px)` : n.style.transform;
+    n.style.opacity = ok ? 1 : 0;
+    n.firstChild.style.fill = S.curveSel === 'cpu' ? 'var(--accent)' : 'var(--indigo)';
+    if (n.firstChild.getAttribute('r') !== '0') n.firstChild.setAttribute('r', 5);
+  });
+  moveNow();
+}
+function moveNow() {
+  const n = $('#now'); if (!n) return;
+  const t = S.curveSel === 'cpu' ? S.t.cpu : S.t.gpu;
+  n.style.transform = `translateX(${X(Math.min(110, Math.max(20, t)))}px)`;
+  n.style.opacity = known() ? 1 : 0;
+}
+function renderPoints(newIndex) {
+  const list = $('#pt-list'), pts = S.curves[S.curveSel];
+  list.innerHTML = pts.map(([c, p], i) => `<div class="pt-row${i === newIndex ? ' enter' : ''}"><span>点 ${i + 1}</span><label>温度<input class="num" type="number" min="1" max="125" step="1" value="${Number.isFinite(c) ? c : ''}" data-i="${i}" data-f="0" aria-label="${S.curveSel.toUpperCase()} 第 ${i + 1} 点温度">°C</label><label>风扇<input class="num" type="number" min="0" max="100" step="1" value="${Number.isFinite(p) ? p : ''}" data-i="${i}" data-f="1" aria-label="${S.curveSel.toUpperCase()} 第 ${i + 1} 点风扇百分比">%</label><button class="round-x" data-del="${i}" aria-label="删除第 ${i + 1} 点" ${pts.length <= 2 || S.thermal ? 'disabled' : ''}><svg viewBox="0 0 12 12"><path d="M3 6h6"/></svg></button></div>`).join('');
+  $$('input', list).forEach(i => i.disabled = S.thermal);
+  $('#pt-add').disabled = pts.length >= 16 || S.thermal;
+}
+segHandlers.curve = v => { S.curveSel = v; renderPoints(); drawChart(); };
+$('#pt-list').addEventListener('input', e => {
+  const i = e.target.dataset.i; if (i == null) return;
+  const v = e.target.value === '' ? NaN : +e.target.value;
+  S.curves[S.curveSel][i][+e.target.dataset.f] = v;
+  drawChart(); renderFan();
+  e.target.classList.toggle('invalid', !Number.isFinite(v));
+});
+$('#pt-list').addEventListener('click', e => {
+  const d = e.target.closest('[data-del]'); if (!d || d.disabled) return;
+  const row = d.closest('.pt-row');
+  row.animate([{ opacity: 1 }, { opacity: 0, transform: 'translateX(-8px)' }], { duration: T(140), easing: 'cubic-bezier(.4,0,1,1)' }).onfinish = () => {
+    S.curves[S.curveSel].splice(+d.dataset.del, 1); renderPoints(); drawChart(); renderFan();
+  };
+});
+$('#pt-add').addEventListener('click', () => {
+  const pts = S.curves[S.curveSel]; const last = pts.at(-1) || [40, 30];
+  pts.push([Math.min(125, last[0] + 5), Math.min(100, last[1])]);
+  renderPoints(pts.length - 1); drawChart(); renderFan();
+});
+$('#th-save').addEventListener('click', e => pendingBtn(e.currentTarget, '保存中…', () => { toast('温控曲线已保存', 'ok', '保存不代表已启动'); addLog('保存温控曲线'); }));
+$('#th-start').addEventListener('click', async () => {
+  const ok = await confirmDialog({ title: '启动自定义温控曲线', ok: '确认启动', body: ['将使用当前填写的 CPU/GPU 曲线持续控制风扇。官方控制台可能争用控制权；检测到外部改写、温度失效或断电时会停止并尝试恢复自动模式。', '这不是固件曲线。程序或系统被强制终止时，无法保证恢复执行。首次使用请观察温度与转速。'] });
+  if (!ok) return;
+  pendingBtn($('#th-start'), '启动中…', () => { S.thermal = true; renderPoints(); toast('温控曲线运行中', 'ok', '手动风扇与性能模式切换已暂停'); addLog('启动温控曲线'); });
+});
+$('#th-stop').addEventListener('click', e => pendingBtn(e.currentTarget, '恢复中…', () => { S.thermal = false; S.fan.cur = S.fan.draft = 'auto'; renderPoints(); toast('已停止并恢复自动', 'ok', '设备读回：自动'); addLog('停止温控曲线 · 恢复自动'); }));
+
+/* ---------- 灯光 ---------- */
+$('#effects').innerHTML = effects.map(([id, name, cls]) => `<button class="fx" role="radio" data-fx="${id}" data-dev><span class="sw-prev ${cls}"></span><span>${name}</span></button>`).join('');
+$('#colors').innerHTML = palette.map(c => `<button class="cdot" role="radio" style="background:${c}" data-color="${c}" aria-label="颜色 ${c}" data-dev></button>`).join('');
+$('#zones').innerHTML = [0, 1, 2, 3].map(i => `<label class="zone">分区 ${i + 1}<input type="color" data-zone="${i}" data-dev></label>`).join('');
+$('#effects').addEventListener('click', e => { const b = e.target.closest('.fx'); if (b && !b.disabled) { S.light.draft.effect = b.dataset.fx; renderLight(); } });
+$('#colors').addEventListener('click', e => { const b = e.target.closest('.cdot'); if (b && !b.disabled) { S.light.draft.color = b.dataset.color; renderLight(); } });
+$('#zones').addEventListener('input', e => { S.light.draft.zones[+e.target.dataset.zone] = e.target.value; renderLight(); });
+for (const k of ['speed', 'bright']) $('#l-' + k).addEventListener('input', e => { S.light.draft[k] = +e.target.value; renderLight(); });
+segHandlers.ldir = v => { S.light.draft.dir = v; renderLight(); };
+function renderLight() {
+  const d = S.light.draft, c = S.light.cur, k = known();
+  $$('.fx').forEach(b => {
+    b.setAttribute('aria-checked', b.dataset.fx === d.effect);
+    const has = b.querySelector('.cur'); const isCur = k && b.dataset.fx === c.effect;
+    if (isCur && !has) b.insertAdjacentHTML('beforeend', '<span class="cur">当前</span>'); else if (!isCur && has) has.remove();
+  });
+  collapse($('#light-dyn'), d.effect !== 'static');
+  collapse($('#light-static'), d.effect === 'static');
+  const sp = $('#l-speed'), br = $('#l-bright');
+  sp.value = d.speed; sp.style.setProperty('--p', (d.speed - 1) / 8 * 100 + '%'); $('#lo-speed').textContent = d.speed;
+  br.value = d.bright; br.style.setProperty('--p', d.bright + '%'); $('#lo-bright').textContent = d.bright + '%';
+  segSet('ldir', d.dir);
+  const mono = monoEffects.includes(d.effect);
+  $$('.cdot').forEach(b => { b.setAttribute('aria-checked', mono && b.dataset.color === d.color); b.disabled = !mono || !live(); });
+  $('#color-note').textContent = mono ? '选择灯效使用的颜色' : '此效果由设备生成配色，不使用单色设置。';
+  $$('[data-zone]').forEach((z, i) => z.value = d.zones[i]);
+  const dirty = !same(d, c);
+  setTag($('#light-tag'), !k ? '状态未知' : S.scn === 'stale' ? '读数已过期' : dirty ? '待应用草稿' : '与设备读回一致', !k ? '' : S.scn === 'stale' ? 'draft' : dirty ? 'draft' : 'ok');
+  $('#light-cur').textContent = k ? `${effects.find(e => e[0] === c.effect)[1]} · 亮度 ${c.bright} · 速度 ${c.speed} · 方向 ${c.dir}` : '尚未读取到当前灯效。';
+  $('#light-hint').textContent = !live() ? '连接设备并获取灯光控制权限后可调整。' : dirty ? `待应用：${effects.find(e => e[0] === d.effect)[1]}${d.effect === 'static' ? '' : ` · 速度 ${d.speed} · 亮度 ${d.bright}%`}` : '尚未修改。应用前不会改动键盘。';
+  $('#light-apply').disabled = !live() || !dirty;
+}
+$('#light-apply').addEventListener('click', e => pendingBtn(e.currentTarget, '应用中…', () => {
+  S.light.cur = structuredClone(S.light.draft); toast('灯效已应用', 'ok', '设备读回与草稿一致'); addLog('应用灯效 ' + effects.find(x => x[0] === S.light.cur.effect)[1]);
+}));
+$('#light-restore').addEventListener('click', e => pendingBtn(e.currentTarget, '恢复中…', () => { toast('恢复请求已返回', 'info', '请以当前设备状态为准'); addLog('恢复上一步灯光'); }));
+
+/* ---------- 辅助与电源 ---------- */
+$('#bc').addEventListener('change', async e => {
+  const want = e.target.checked, sw = $('#bc-sw');
+  sw.classList.add('pending'); e.target.disabled = true;
+  await wait(900);
+  S.batt.care = want; sw.classList.remove('pending');
+  toast(`电池保护已${want ? '开启' : '关闭'}`, 'ok', '设备读回确认'); addLog(`电池保护 ${want ? '开启' : '关闭'} · 读回一致`);
+  renderAll();
+});
+$('#usb-on').addEventListener('change', e => { S.usb.draft.on = e.target.checked; renderAux(); });
+segHandlers.usbth = v => { S.usb.draft.th = v; renderAux(); };
+$('#usb-apply').addEventListener('click', e => pendingBtn(e.currentTarget, '应用中…', () => { S.usb.cur = { ...S.usb.draft }; toast('USB 关机供电设置已读回确认', 'ok', '物理供电效果仍待测试'); addLog('应用 USB 关机供电'); }));
+$('#rule-on').addEventListener('change', e => { S.rule.draft.on = e.target.checked; renderAux(); });
+$('#rule-ac').addEventListener('change', e => { S.rule.draft.ac = e.target.value; renderAux(); });
+$('#rule-dc').addEventListener('change', e => { S.rule.draft.dc = e.target.value; renderAux(); });
+$('#rule-save').addEventListener('click', e => pendingBtn(e.currentTarget, '保存中…', () => { S.rule.cur = { ...S.rule.draft }; toast('规则配置已读回', 'ok', '不代表硬件模式已切换'); addLog('保存电源切换规则'); }));
+$$('[data-vendor]').forEach(i => i.addEventListener('change', async e => {
+  const sw = e.target.parentElement; sw.classList.add('pending'); e.target.disabled = true;
+  await wait(700); sw.classList.remove('pending'); e.target.disabled = !live();
+  toast(`${e.target.getAttribute('aria-label')}：${e.target.checked ? '开启' : '关闭'}`, 'ok', '设备读回确认');
+}));
+function renderAux() {
+  const k = known();
+  $('#bc').checked = S.batt.care;
+  $('#bc-sub').textContent = `电量 ${k ? S.batt.pct + '%' : '—'} · 当前读回：${k ? (S.batt.care ? '开启' : '关闭') : '未知'}`;
+  const u = S.usb, uDirty = !same(u.draft, u.cur);
+  $('#usb-on').checked = u.draft.on; segSet('usbth', u.draft.th);
+  setTag($('#usb-tag'), !k ? '状态未知' : uDirty ? '待应用草稿' : '与设备读回一致', !k ? '' : uDirty ? 'draft' : 'ok');
+  $('#usb-hint').textContent = !k ? '请先授权设备访问，再修改 USB 设置。' : uDirty ? `待应用：${u.draft.on ? '开启' : '关闭'} · 截止电量 ${u.draft.th}%` : `当前设置：${u.cur.on ? '开启' : '关闭'} · 截止电量 ${u.cur.th}%。物理关机供电效果仍待测试。`;
+  $('#usb-apply').disabled = !live() || !uDirty;
+  const r = S.rule, rDirty = !same(r.draft, r.cur);
+  $('#rule-on').checked = r.draft.on; $('#rule-ac').value = r.draft.ac; $('#rule-dc').value = r.draft.dc;
+  $('#rule-ac').disabled = $('#rule-dc').disabled = !r.draft.on;
+  setTag($('#rule-tag'), rDirty ? '待保存草稿' : '与已保存配置一致', rDirty ? 'draft' : 'ok');
+  $('#rule-save').disabled = !rDirty;
+  const au = $('#audio');
+  au.dataset.cur = k ? '自动' : '';
+  au.toggleAttribute('data-unknown', !k);
+  syncPops();
+}
+
+/* ---------- 应用与系统 ---------- */
+$('#st').addEventListener('change', async e => {
+  const sw = $('#st-sw'); sw.classList.add('pending'); e.target.disabled = true;
+  await wait(800); sw.classList.remove('pending'); e.target.disabled = false;
+  $('#st-state').textContent = e.target.checked ? '已启用' : '已关闭';
+  toast(`登录后启动${e.target.checked ? '已启用' : '已关闭'}`, 'ok', '系统启动项已读回'); addLog('登录启动 ' + (e.target.checked ? '启用' : '关闭'));
+});
+function prefDraft() { return { tray: $('#pref-tray').checked, restore: $('#pref-restore').checked }; }
+function renderPref() {
+  const dirty = !same(prefDraft(), S.pref.cur);
+  swapText($('#pref-hint'), dirty ? '有未保存的设置' : '设置已同步');
+  $('#pref-save').disabled = !dirty;
+}
+$('#pref-tray').addEventListener('change', renderPref);
+$('#pref-restore').addEventListener('change', renderPref);
+$('#pref-save').addEventListener('click', e => pendingBtn(e.currentTarget, '保存中…', () => { S.pref.cur = prefDraft(); toast('设置已保存', 'ok'); addLog('保存应用设置'); }));
+let backed = false;
+$('#off-bk').addEventListener('click', e => pendingBtn(e.currentTarget, '备份中…', () => { backed = true; $('#off-backup').textContent = '备份有效 · 原状态为启用'; $('#off-bk').disabled = true; $('#off-dis').disabled = $('#off-res').disabled = false; toast('启动任务已备份', 'ok'); }));
+$('#off-dis').addEventListener('click', e => pendingBtn(e.currentTarget, '正在禁用…', () => { $('#off-state').textContent = '已禁用 · PredatorSense Launcher'; toast('官方界面登录启动已禁用', 'ok', '服务与当前进程未改动'); }));
+$('#off-res').addEventListener('click', e => pendingBtn(e.currentTarget, '正在恢复…', () => { $('#off-state').textContent = '已启用 · PredatorSense Launcher'; toast('已恢复备份时的启动状态', 'ok'); }));
+$('#off-refresh').addEventListener('click', e => pendingBtn(e.currentTarget, '读取中…', () => {}));
+function renderCaps() {
+  const items = [['状态读取', '已支持'], ['性能模式', '已支持'], ['风扇控制', '已支持'], ['自定义风扇', '已支持'], ['静态灯光', '已支持'], ['动态灯效', '已支持'], ['灯光恢复', '需读取组件状态']];
+  $('#cap-list').innerHTML = items.map(([a, b]) => `<div class="row"><span class="row-l"><b>${a}</b></span><span class="row-v">${known() ? b : '未知'}</span></div>`).join('');
+}
+
+/* ---------- 插件 ---------- */
+$('#log-sw').addEventListener('change', e => collapse($('#log-panel'), e.target.checked));
+$('#guard-btn').addEventListener('click', async () => {
+  const ok = await confirmDialog({ title: '确认看门狗任务变更', ok: S.guard ? '确认暂停' : '确认启用', body: [S.guard ? '暂停后不再触发新的定期检查，正在进行的检查不会被取消。' : '启用后将恢复计划检查，超限时可能重启 Central 服务。'] });
+  if (!ok) return;
+  pendingBtn($('#guard-btn'), '处理中…', () => { S.guard = !S.guard; toast(S.guard ? '自动检查已启用' : '自动检查已暂停', 'ok', '任务状态已读回'); });
+});
+$('#pl-refresh').addEventListener('click', e => pendingBtn(e.currentTarget, '读取中…', () => tick(true)));
+function renderPlugin() {
+  setTag($('#guard-tag'), S.guard ? '自动检查已启用' : '自动检查已暂停', S.guard ? 'ok' : 'draft');
+  $('#guard-btn').textContent = S.guard ? '暂停自动检查' : '启用自动检查';
+}
+
+/* ---------- Device Center 外设（全部为演示数据） ---------- */
+const DC = {
+  present: true, state: 'running', hashChanged: false, keep: false, reconnect: 0,
+  get running() { return this.state === 'running'; },
+  set running(v) { this.state = v ? 'running' : 'stopped'; },
+  g: {
+    mouse: { cur: { dpi: '1600', rate: '1000' } },
+    kb: { cur: { rate: '1000', sleep: '300' } },
+    kbl: { cur: { mode: 'wave', bright: 3, speed: 3, multi: 'multi', rgb: '#0a84ff' } },
+    lamp: { cur: { bright: 60, ct: 4000 } }
+  },
+  sw: { lowLatency: { cur: true }, mac: { cur: false }, winLock: { cur: null }, lampOn: { cur: true } },
+  batt: { mouse: 72, kb: null, lamp: null },
+  cfg: { ip: '192.168.1.50', token: '7c2e', editing: false }
+};
+for (const g of Object.values(DC.g)) { g.draft = structuredClone(g.cur); g.conflict = null; }
+const dcLive = () => DC.present && DC.running;
+const kblModes = { static: '常亮', breath: '呼吸', wave: '波浪', neon: '霓虹', ripple: '涟漪', off: '关闭' };
+const sleepNames = { 60: '1 分钟', 300: '5 分钟', 600: '10 分钟', 1800: '30 分钟', 0: '从不' };
+const dcFields = {
+  mouse: { dpi: ['DPI', v => v], rate: ['回报率', v => v + ' Hz'] },
+  kb: { rate: ['回报率', v => v + ' Hz'], sleep: ['休眠', v => sleepNames[v]] },
+  kbl: { mode: ['模式', v => kblModes[v]], bright: ['亮度', v => v + ' 档'], speed: ['速度', v => v + ' 档'], multi: ['颜色', v => v === 'multi' ? '多彩' : '单色'], rgb: ['RGB', v => v.toUpperCase()] },
+  lamp: { bright: ['亮度', v => v + '%'], ct: ['色温', v => v + 'K'] }
+};
+const dcSummary = { mouse: c => `${c.dpi} DPI · ${c.rate} Hz`, kb: c => `${c.rate} Hz · 休眠 ${sleepNames[c.sleep]}`, kbl: c => `${kblModes[c.mode]} · 亮度 ${c.bright} 档`, lamp: c => `亮度 ${c.bright}% · ${c.ct}K` };
+const dcNames = { mouse: 'ATK F1 鼠标', kb: 'KX75 键盘', kbl: 'KX75 灯效', lamp: '小米挂灯' };
+
+/* 设备顺序：拖动把手或 ↑↓ 键；顺序存 localStorage，新设备追加到末尾，已断开的设备保留原位 */
+const devMeta = { mouse: ['ATK F1 鼠标', 'i-mouse', 'blue', '2.4G 接收器'], kb: ['KX75 键盘', 'i-key', 'gray', '有线 USB'], lamp: ['小米挂灯 1S', 'i-lamp', 'orange', '局域网 Wi-Fi'] };
+const devOf = { mouse: 'mouse', kb: 'kb', kbl: 'kb', lamp: 'lamp' };
+const swDev = { lowLatency: 'kb', mac: 'kb', winLock: 'kb', lampOn: 'lamp' };
+DC.off = {};
+const devLive = id => dcLive() && !DC.off[id];
+const ORDER_KEY = 'acer-preview-dev-order';
+let devOrder = (() => { try { const a = JSON.parse(localStorage.getItem(ORDER_KEY)); return Array.isArray(a) ? a.filter(x => typeof x === 'string') : []; } catch { return []; } })();
+function knownOrder() {
+  for (const id of Object.keys(devMeta)) if (!devOrder.includes(id)) devOrder.push(id);
+  return devOrder.filter(id => devMeta[id]);
+}
+function saveOrder() { try { localStorage.setItem(ORDER_KEY, JSON.stringify(devOrder)); } catch {} }
+const gripSvg = '<svg viewBox="0 0 8 14" aria-hidden="true"><circle cx="2" cy="2" r="1.2"/><circle cx="6" cy="2" r="1.2"/><circle cx="2" cy="7" r="1.2"/><circle cx="6" cy="7" r="1.2"/><circle cx="2" cy="12" r="1.2"/><circle cx="6" cy="12" r="1.2"/></svg>';
+function devRowHTML(id) {
+  const [name, ic, col] = devMeta[id];
+  return `<div class="row dev-row" role="listitem" data-id="${id}"><button class="grip" type="button" aria-label="调整顺序：${name}" aria-describedby="dc-order-help">${gripSvg}</button><span class="sq ${col}"><svg class="i"><use href="#${ic}"/></svg></span><span class="row-l"><b>${name}</b><small class="conn-s" data-conn="${id}"><i class="dot"></i><span></span></small></span><span class="row-v dev-batt">电量 <span class="roll" data-roll="dcBatt-${id}"></span><span data-pct="${id}">%</span></span></div>`;
+}
+function applyDevOrder() {
+  const host = $('#dc-devs'), secs = $('#dc-secs');
+  for (const id of knownOrder()) {
+    host.append($(`.dev-row[data-id="${id}"]`, host));
+    const s = $(`.dc-sec[data-sec="${id}"]`, secs); if (s) secs.append(s);
+  }
+}
+function reorder(from, to) {
+  const ids = knownOrder(); const [x] = ids.splice(from, 1); ids.splice(to, 0, x);
+  devOrder = [...ids, ...devOrder.filter(i => !ids.includes(i))];
+  saveOrder(); applyDevOrder();
+}
+const springEase = () => getComputedStyle(root).getPropertyValue('--spring-snappy').trim();
+const announce = t => { $('#dc-live').textContent = t; };
+$('#dc-devs').innerHTML = knownOrder().map(devRowHTML).join('');
+applyDevOrder();
+$('#dc-devs').addEventListener('keydown', e => {
+  const g = e.target.closest('.grip'); if (!g) return;
+  const ids = knownOrder(), id = g.closest('.dev-row').dataset.id, from = ids.indexOf(id);
+  const to = { ArrowUp: from - 1, ArrowDown: from + 1, Home: 0, End: ids.length - 1 }[e.key];
+  if (to == null) return;
+  e.preventDefault();
+  if (to < 0 || to >= ids.length || to === from) return;
+  const rows = $$('#dc-devs .dev-row'), before = new Map(rows.map(r => [r, r.getBoundingClientRect().top]));
+  reorder(from, to);
+  g.focus({ preventScroll: true });
+  if (!S.rm) rows.forEach(r => { const dy = before.get(r) - r.getBoundingClientRect().top; if (dy) r.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: T(370), easing: springEase() }); });
+  announce(`${devMeta[id][0]}移到第 ${to + 1} 位，共 ${ids.length} 个`);
+});
+let drag = null;
+$('#dc-devs').addEventListener('pointerdown', e => {
+  const g = e.target.closest('.grip'); if (!g || e.button !== 0) return;
+  e.preventDefault();
+  const rows = $$('#dc-devs .dev-row'), row = g.closest('.dev-row');
+  drag = { pid: e.pointerId, row, rows, rects: rows.map(r => r.getBoundingClientRect()), from: rows.indexOf(row), to: rows.indexOf(row), y: e.clientY, moved: false };
+  g.setPointerCapture(e.pointerId);
+});
+$('#dc-devs').addEventListener('pointermove', e => {
+  const d = drag; if (!d || e.pointerId !== d.pid) return;
+  const R = d.rects, f = d.from;
+  let dy = e.clientY - d.y;
+  if (!d.moved) { if (Math.abs(dy) < 3) return; d.moved = true; $('#dc-devs').classList.add('sorting'); d.row.classList.add('dragging'); }
+  dy = Math.max(R[0].top - R[f].top, Math.min(R.at(-1).bottom - R[f].bottom, dy));
+  d.row.style.transform = `translateY(${dy}px)`;
+  const mid = r => r.top + r.height / 2, c = mid(R[f]) + dy;
+  let to = f;
+  R.forEach((r, i) => { if (i < f && c <= mid(r) + 0.5) to = Math.min(to, i); if (i > f && c >= mid(r) - 0.5) to = Math.max(to, i); });
+  d.to = to;
+  const h = R[f].height;
+  d.rows.forEach((r, i) => {
+    if (i === f) return;
+    const s = f < to && i > f && i <= to ? -h : f > to && i >= to && i < f ? h : 0;
+    r.style.transform = s ? `translateY(${s}px)` : '';
+  });
+});
+function endDrag(e) {
+  const d = drag; if (!d || e.pointerId !== d.pid) return;
+  drag = null;
+  if (!d.moved) return;
+  const vis = d.row.getBoundingClientRect().top;
+  $('#dc-devs').classList.remove('sorting');
+  d.rows.forEach(r => { r.style.transform = ''; });
+  if (d.to !== d.from) { reorder(d.from, d.to); announce(`${devMeta[d.row.dataset.id][0]}移到第 ${d.to + 1} 位`); }
+  const dy = vis - d.row.getBoundingClientRect().top;
+  const done = () => d.row.classList.remove('dragging');
+  if (S.rm || !dy) { done(); return; }
+  d.row.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: T(370), easing: springEase() }).onfinish = done;
+}
+$('#dc-devs').addEventListener('pointerup', endDrag);
+$('#dc-devs').addEventListener('pointercancel', endDrag);
+function addDemoDevice() {
+  if (devMeta.pad) return;
+  devMeta.pad = ['ATK 鼠标垫 RGB（演示）', 'i-pad', 'pink', '有线 USB · 暂无可调设置'];
+  DC.batt.pad = null;
+  $('#dc-devs').insertAdjacentHTML('beforeend', devRowHTML('pad'));
+  applyDevOrder(); saveOrder(); renderDC();
+  const row = $('.dev-row[data-id="pad"]');
+  if (!S.rm) row.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: T(490), easing: getComputedStyle(root).getPropertyValue('--spring-smooth').trim() });
+  toast('新设备已接入', 'ok', 'ATK 鼠标垫 RGB（演示）已追加到列表末尾');
+}
+for (const seg of $$('.seg[data-seg^="dc-"]')) {
+  const [, gid, f] = seg.dataset.seg.split('-');
+  segHandlers[seg.dataset.seg] = v => { DC.g[gid].draft[f] = v; renderDC(); };
+}
+$('.page[data-page="dc"]').addEventListener('input', e => {
+  const key = e.target.dataset.f; if (!key) return;
+  const [gid, f] = key.split('.');
+  DC.g[gid].draft[f] = e.target.type === 'range' ? +e.target.value : e.target.value;
+  renderDC();
+});
+$$('[data-apply]').forEach(b => b.addEventListener('click', () => {
+  const gid = b.dataset.apply, g = DC.g[gid];
+  pendingBtn(b, '应用中…', () => { g.cur = structuredClone(g.draft); g.conflict = null; toast(`${dcNames[gid]}设置已应用`, 'ok', '设备读回与草稿一致（演示）'); addLog(`应用 ${dcNames[gid]} · ${dcSummary[gid](g.cur)}`); });
+}));
+$$('[data-sw]').forEach(sw => {
+  const key = sw.dataset.sw, input = $('input', sw);
+  input.addEventListener('change', async () => {
+    const st = DC.sw[key]; st.writing = true; renderDC();
+    await wait(900);
+    st.cur = input.checked; st.writing = false;
+    toast(`${input.getAttribute('aria-label')}：${input.checked ? '开启' : '关闭'}`, 'ok', '设备读回确认（演示）');
+    addLog(`${input.getAttribute('aria-label')} ${input.checked ? '开启' : '关闭'} · 读回一致`);
+    renderDC();
+  });
+});
+function dcReadback(gid, next) {
+  const g = DC.g[gid];
+  if (same(next, g.cur)) return false;
+  if (same(g.draft, g.cur)) g.draft = structuredClone(next);
+  else {
+    const fs = Object.keys(next).filter(k => next[k] !== g.cur[k] && next[k] !== g.draft[k]);
+    if (fs.length) g.conflict = [...new Set([...(g.conflict || []), ...fs])];
+  }
+  g.cur = structuredClone(next);
+  return !!g.conflict;
+}
+function dcReadAll(ext) {
+  let n = 0;
+  for (const gid of Object.keys(DC.g)) if (devLive(devOf[gid]) && dcReadback(gid, { ...DC.g[gid].cur, ...(ext[gid] || {}) })) n++;
+  for (const [k, v] of Object.entries(ext.sw || {})) if (!DC.sw[k].writing && devLive(swDev[k])) DC.sw[k].cur = v;
+  if (ext.batt && DC.batt.mouse != null) DC.batt.mouse = Math.max(1, DC.batt.mouse + ext.batt);
+  return n;
+}
+/* 模块状态（契约第 7 节）：只有 running 时有设备读数；其余状态外设控件一律未知 */
+function modView() {
+  if (DC.hashChanged) return { tag: '待确认', kind: 'draft', proc: '未运行', proto: '—', hint: '模块未运行，暂无设备读数。' };
+  return ({
+    running: { tag: '运行中', kind: 'ok', proc: '运行中 · PID 8840', proto: '1.0 · 一期能力 14 项' },
+    starting: { tag: '启动中', kind: '', proc: '启动中 · PID 8840', proto: '等待握手', hint: '模块正在启动，暂无设备读数。',
+      note: ['info', 'spin', '正在启动模块', '等待模块完成握手。启动前不显示任何外设读数。'] },
+    reconnecting: { tag: '重连中', kind: 'draft', proc: '运行中 · PID 8840', proto: '1.0 · 连接中断', hint: '与模块的连接已中断，读数暂停更新。',
+      note: ['info', 'spin', `连接中断，正在重连（第 ${DC.reconnect}/3 次）`, '后台进程仍在运行。重连前不更新读数，也不发送写入。'] },
+    stopped: { tag: '已停止', kind: '', proc: '未运行', proto: '—', hint: '模块未运行，暂无设备读数。',
+      note: ['info', 'i-cube', '模块未运行', '外设控件在模块启动后可用。', '<button class="btn primary" data-mod="start">启动模块</button>'] },
+    elsewhere: { tag: '被占用', kind: 'draft', proc: '其他实例运行中', proto: '—', hint: 'Device Center 已在其他地方运行，暂无设备读数。',
+      note: ['warn', 'i-warn', 'Device Center 已在其他地方运行', '可能是独立窗口版，或上次保持在后台的模块。关闭它后再重新检测，控制台不会强行接管。', '<button class="btn" data-mod="recheck">重新检测</button>'] },
+    incompatible: { tag: '不兼容', kind: 'er', proc: '已退出', proto: '模块 2.0 · 控制台支持 1.x', hint: '协议版本不兼容，暂无设备读数。',
+      note: ['er', 'i-warn', '协议版本不兼容', '模块协议主版本为 2，本控制台支持 1.x。请更新控制台或换回匹配的模块。', '<button class="btn" data-mod="recheck">重新检测</button>'] },
+    error: { tag: '异常', kind: 'er', proc: '已退出 · 退出码 10', proto: '—', hint: '模块异常退出，旧读数已清空。',
+      note: ['er', 'i-warn', '模块异常退出', '退出码 10（内部错误）。外设读数已清空，不显示旧值；写入结果以重启后的读回为准。', '<button class="btn primary" data-mod="start">重新启动</button>'] },
+  })[DC.state];
+}
+let modNoteKey = '';
+function renderModNote(M) {
+  const n = !DC.hashChanged && M.note, el = $('#dc-note'), inner = $('.inner', el);
+  const key = n ? n.join('|') : '';
+  if (n && key !== modNoteKey) {
+    const ico = n[1] === 'spin' ? '<span class="spinner" aria-hidden="true"></span>' : `<svg class="i cf-ico"><use href="#${n[1]}"/></svg>`;
+    inner.innerHTML = `<div class="conflict ${n[0] === 'warn' ? '' : n[0]}">${ico}<span class="row-l"><b>${n[2]}</b><small>${n[3]}</small></span>${n[4] ? `<span class="cf-act">${n[4]}</span>` : ''}</div>`;
+  }
+  modNoteKey = key;
+  collapse(el, !!n);
+}
+$('#dc-note').addEventListener('click', e => {
+  const b = e.target.closest('[data-mod]');
+  if (!b) return;
+  if (b.dataset.mod === 'start') pendingBtn(b, '启动中…', () => { DC.state = 'running'; toast('模块已启动', 'ok', '握手完成 · 协议 1.0（演示）'); addLog('启动 Device Center 模块'); renderAll(); });
+  else pendingBtn(b, '检测中…', () => { toast('仍未满足启动条件', 'warn', '状态未变化（演示）'); });
+});
+
+let dcSyncKey = '';
+function renderDC() {
+  const L = dcLive();
+  const M = modView();
+  setTag($('#dc-mod-tag'), M.tag, M.kind);
+  $('#dc-proc').textContent = M.proc;
+  $('#dc-proto').textContent = M.proto;
+  collapse($('#dc-hash'), DC.hashChanged);
+  renderModNote(M);
+  if ($('#pv-dcstate').value !== DC.state) $('#pv-dcstate').value = DC.state;
+  $('#dc-keep').checked = DC.keep;
+  for (const id of knownOrder()) {
+    const c = $(`[data-conn="${id}"]`), Ld = devLive(id), off = L && DC.off[id];
+    c.className = 'conn-s' + (Ld ? ' ok' : '');
+    c.lastElementChild.textContent = !L ? '状态未知' : off ? '已断开 · 保留原位置' : '已连接 · ' + devMeta[id][3];
+    c.closest('.dev-row').classList.toggle('off', !!off);
+    const b = Ld ? DC.batt[id] : null;
+    roll('dcBatt-' + id, b); $(`[data-pct="${id}"]`).hidden = b == null;
+  }
+  const key = !L ? 'off' : S.syncing ? 'sync' : 'ok';
+  if (key !== dcSyncKey) { dcSyncKey = key; $('#dc-sync-note').innerHTML = key === 'sync' ? '<span class="sync-ind"><span class="spinner"></span>同步中 · 控件仍可编辑</span>' : key === 'ok' ? '设备读回' : '模块未运行'; }
+  for (const gid of Object.keys(DC.g)) {
+    const L = devLive(devOf[gid]);
+    const g = DC.g[gid], d = g.draft, c = g.cur, dirty = L && !same(d, c), F = dcFields[gid];
+    $$(`.seg[data-seg^="dc-${gid}-"]`).forEach(seg => { const f = seg.dataset.seg.split('-')[2]; segSet(seg.dataset.seg, d[f]); segCurrent(seg.dataset.seg, L ? c[f] : null); segDisable(seg, !L); });
+    $$(`[data-f^="${gid}."]`).forEach(el => {
+      const f = el.dataset.f.split('.')[1];
+      if (String(el.value) !== String(d[f])) el.value = d[f];
+      el.disabled = !L;
+      if (el.tagName === 'SELECT') { el.dataset.cur = L ? c[f] : ''; el.toggleAttribute('data-unknown', !L); }
+      if (el.type === 'range') el.style.setProperty('--p', (d[f] - el.min) / (el.max - el.min) * 100 + '%');
+    });
+    $$(`[data-o^="${gid}."]`).forEach(o => { const f = o.dataset.o.split('.')[1]; o.textContent = F[f][1](d[f]); });
+    setTag($(`#dc-${gid}-tag`), !L ? (dcLive() ? '设备已断开' : '状态未知') : dirty ? '待应用 · 设备 ' + dcSummary[gid](c) : '当前 · ' + dcSummary[gid](c), !L ? '' : dirty ? 'draft' : 'ok');
+    $(`#dc-${gid}-hint`).textContent = !L ? (dcLive() ? '设备已断开，暂无读数；重新连接后恢复。' : modView().hint) : dirty ? '待应用：' + Object.keys(d).filter(f => d[f] !== c[f]).map(f => `${F[f][0]} ${F[f][1](d[f])}`).join(' · ') : '与设备读回一致。应用前不会改动设备。';
+    if (!$(`#dc-${gid}-apply .spinner`)) $(`#dc-${gid}-apply`).disabled = !dirty;
+    const fs = L && g.conflict ? g.conflict.filter(f => d[f] !== c[f]) : [];
+    const cf = $('#dc-cf-' + gid), inner = $('.inner', cf);
+    if (fs.length) {
+      const text = '设备已变为 ' + fs.map(f => `${F[f][0]} ${F[f][1](c[f])}`).join('、');
+      if (inner.dataset.t !== text) {
+        inner.dataset.t = text;
+        inner.innerHTML = `<div class="conflict"><svg class="i cf-ico"><use href="#i-warn"/></svg><span class="row-l"><b>${text}</b><small>同步时读回发生变化，草稿没有被覆盖。</small></span><span class="cf-act"><button class="btn" data-keep="${gid}">保留草稿</button><button class="btn primary" data-adopt="${gid}">采用设备值</button></span></div>`;
+      }
+    }
+    collapse(cf, fs.length > 0);
+  }
+  collapse($('#dc-kbl-rgb'), DC.g.kbl.draft.multi === 'mono');
+  roll('dcDpi', devLive('mouse') ? +DC.g.mouse.cur.dpi : null);
+  $('#dc-map').disabled = !devLive('mouse');
+  for (const [k, st] of Object.entries(DC.sw)) {
+    const Ls = devLive(swDev[k]);
+    const sw = $(`[data-sw="${k}"]`), input = $('input', sw), unk = !Ls || st.cur == null;
+    sw.classList.toggle('pending', !!st.writing);
+    sw.hidden = unk; $(`[data-unk="${k}"]`).hidden = !unk;
+    input.disabled = !!st.writing || !Ls;
+    if (!st.writing && st.cur != null) input.checked = st.cur;
+  }
+  renderCfg();
+  syncPops();
+}
+const ipOk = v => /^\d{1,3}(\.\d{1,3}){3}$/.test(v) && v.split('.').every(n => +n <= 255);
+function renderCfg() {
+  const L = dcLive(), ipIn = $('#dc-ip'), tokIn = $('#dc-token');
+  const ip = ipIn.value.trim(), tok = tokIn.value.trim(), ed = DC.cfg.editing;
+  const ipBad = !ipOk(ip), tokBad = ed && tok !== '' && !/^[0-9a-f]{32}$/i.test(tok);
+  const dirty = ip !== DC.cfg.ip || (ed && tok !== '');
+  ipIn.classList.toggle('invalid', ipBad); tokIn.classList.toggle('invalid', tokBad);
+  ipIn.disabled = tokIn.disabled = $('#dc-token-edit').disabled = !L;
+  $('#dc-token-mask').hidden = ed; tokIn.hidden = !ed;
+  $('#dc-token-mask').textContent = '•••• •••• •••• ' + DC.cfg.token;
+  $('#dc-token-edit').textContent = ed ? '取消' : '更换';
+  setTag($('#dc-cfg-tag'), dirty ? '待保存' : '与已保存配置一致', dirty ? 'draft' : 'ok');
+  $('#dc-cfg-hint').textContent = ipBad ? 'IP 地址格式不正确。' : tokBad ? 'Token 应为 32 位十六进制。' : dirty ? '有未保存的连接设置。' : '保存后重新连接挂灯。';
+  if (!$('#dc-cfg-save .spinner')) $('#dc-cfg-save').disabled = !L || !dirty || ipBad || tokBad;
+}
+$('#dc-ip').addEventListener('input', renderCfg);
+$('#dc-token').addEventListener('input', renderCfg);
+$('#dc-token-edit').addEventListener('click', () => { DC.cfg.editing = !DC.cfg.editing; $('#dc-token').value = ''; renderCfg(); if (DC.cfg.editing) $('#dc-token').focus(); });
+$('#dc-cfg-save').addEventListener('click', e => pendingBtn(e.currentTarget, '保存中…', () => {
+  DC.cfg.ip = $('#dc-ip').value.trim();
+  const tok = $('#dc-token').value.trim();
+  if (DC.cfg.editing && tok) DC.cfg.token = tok.slice(-4).toLowerCase();
+  DC.cfg.editing = false; $('#dc-token').value = '';
+  toast('挂灯连接已保存', 'ok', 'Token 已加密保存，界面只显示末 4 位（演示）'); addLog('保存挂灯连接设置');
+}));
+$('#dc-map').addEventListener('click', () => toast('按键映射编辑不在本预览范围', 'info', '入口位置示意'));
+$('#dc-trust').addEventListener('click', e => pendingBtn(e.currentTarget, '启动中…', () => {
+  DC.hashChanged = false; DC.running = true;
+  toast('模块已启动', 'ok', '新的文件哈希已记为信任快照（演示）'); addLog('确认模块文件变更并启动');
+}));
+$('#dc-keep').addEventListener('change', async e => {
+  const sw = $('#dc-keep-sw'); sw.classList.add('pending'); e.target.disabled = true;
+  await wait(600); sw.classList.remove('pending'); e.target.disabled = false;
+  DC.keep = e.target.checked;
+  toast(DC.keep ? '控制台退出后模块保持后台运行' : '控制台退出时一并停止模块', 'ok'); addLog('保持后台运行 ' + (DC.keep ? '开启' : '关闭'));
+});
+function setDcPresent(on) {
+  DC.present = on;
+  if (on) { DC.running = true; DC.hashChanged = false; }
+  const nb = $('#nav-dc');
+  nb.classList.toggle('gone', !on); nb.inert = !on;
+  if (!on && S.page === 'dc') go('acer');
+  toast(on ? '已发现 Device Center 模块' : '模块文件夹已移除', on ? 'ok' : 'warn', on ? 'modules/device-center v0.1.1' : '外设入口已隐藏，在途写入不会伪称回滚（演示）');
+  renderAll();
+  setTimeout(() => placeNav(true), T(220));
+}
+
+/* ---------- 操作记录浮层 ---------- */
+$('#log-btn').addEventListener('click', e => {
+  const btn = e.currentTarget, open = $('.foot-bar .popover');
+  if (open) { open.classList.add('out'); btn.setAttribute('aria-expanded', false); setTimeout(() => open.remove(), T(150)); return; }
+  const p = document.createElement('div'); p.className = 'popover'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', '操作记录');
+  p.innerHTML = S.log.length ? S.log.map(l => `<div class="log-item"><time>${l.t}</time><span>${l.text}</span></div>`).join('') : '<div class="log-item"><span></span><span class="muted">本次会话还没有操作。</span></div>';
+  $('.foot-bar').append(p); btn.setAttribute('aria-expanded', true);
+});
+document.addEventListener('click', e => { const p = $('.foot-bar .popover'); if (p && !e.target.closest('.popover,#log-btn')) $('#log-btn').click(); });
+
+/* ---------- 预览工具 ---------- */
+$('#pv-fab').addEventListener('click', () => {
+  const p = $('#pv-panel'); const open = p.hidden; p.hidden = !open; $('#pv-fab').setAttribute('aria-expanded', open);
+  if (open) $$('.seg', p).forEach(s => placeThumb(s, true));
+});
+segHandlers.scn = v => setScenario(v);
+segHandlers.ts = v => { S.ts = +v; root.style.setProperty('--ts', v); };
+$('#pv-rm').addEventListener('change', e => { S.rm = e.target.checked; root.classList.toggle('rm', S.rm); });
+$('#pv-sim').addEventListener('change', e => { S.sim = e.target.checked; });
+$('#pv-toast').addEventListener('click', () => toast('性能模式：性能', 'ok', '设备读回确认'));
+$('#pv-dialog').addEventListener('click', () => confirmDialog({ title: '启动自定义温控曲线', ok: '确认启动', body: ['这是弹窗动效演示，不会执行任何操作。'] }));
+$('#pv-heat').addEventListener('click', () => { S.t.cpu = S.t.cpu >= 90 ? 64 : 97; S.t.gpu = S.t.gpu >= 85 ? 57 : 88; tick(true); });
+$('#pv-ext').addEventListener('click', () => {
+  const p = S.profile, G = DC.g;
+  const pick = (gid, f, opts) => opts.find(v => v !== G[gid].cur[f] && v !== G[gid].draft[f]);
+  S.ext = {
+    profile: ['performance', 'quiet', 'balanced'].find(v => v !== p.cur && v !== p.draft),
+    mouse: { dpi: pick('mouse', 'dpi', ['3200', '800', '6400', '1600']) },
+    kbl: { mode: pick('kbl', 'mode', ['breath', 'neon', 'wave']) },
+    lamp: { bright: pick('lamp', 'bright', [35, 70, 50]) },
+    sw: { lampOn: !DC.sw.lampOn.cur },
+    batt: -1
+  };
+  sync();
+});
+$('#pv-dchash').addEventListener('click', () => { if (!DC.present) return; DC.hashChanged = true; DC.running = false; toast('演示：模块文件已变更', 'warn', '需确认后才会启动'); renderAll(); });
+$('#pv-dcmod').addEventListener('change', e => setDcPresent(e.target.checked));
+$('#pv-dcstate').addEventListener('change', e => {
+  if (!DC.present) return;
+  DC.hashChanged = false; DC.state = e.target.value; DC.reconnect = e.target.value === 'reconnecting' ? 2 : 0;
+  renderAll();
+});
+$('#pv-exitfail').addEventListener('click', async () => {
+  const stop = await confirmDialog({
+    title: '未能让模块留在后台',
+    body: ['已开启“控制台退出时保持后台运行”，但没能通知 Device Center 模块继续运行。为避免模块随控制台一起停止，控制台没有退出。',
+           '可以稍后再试，或者停止模块后退出。'],
+    ok: '停止模块并退出', cancel: '暂不退出', danger: true
+  });
+  toast(stop ? '已停止模块（演示，不会真的退出）' : '控制台保持运行', stop ? 'ok' : 'info');
+});
+$('#pv-newdev').addEventListener('click', e => { addDemoDevice(); e.currentTarget.disabled = true; });
+$('#pv-kb').addEventListener('change', e => {
+  DC.off.kb = !e.target.checked;
+  toast(e.target.checked ? 'KX75 键盘已重新连接' : 'KX75 键盘已断开', e.target.checked ? 'ok' : 'warn', e.target.checked ? '读数已恢复（演示）' : '保留在列表原位置（演示）');
+  renderDC();
+});
+
+/* ---------- 弹出按钮：替换原生 select；select 保留为隐藏的数据模型，原有 change/input 监听不变 ---------- */
+const PY = { 不: 'b', 安: 'a', 平: 'p', 性: 'x', 极: 'j', 音: 'y', 电: 'd', 语: 'y', 策: 'c', 角: 'j', 射: 's', 自: 'z', 分: 'f', 从: 'c', 常: 'c', 呼: 'h', 波: 'b', 霓: 'n', 涟: 'l', 关: 'g', 重: 'c', 上: 's', 最: 'z', 补: 'b' };
+const initials = t => [...t].map(c => PY[c] || c.toLowerCase()).join('');
+const popChev = '<svg class="pop-ch" viewBox="0 0 9 15" aria-hidden="true"><path d="M1.5 5.5 4.5 2.5 7.5 5.5M1.5 9.5 4.5 12.5 7.5 9.5"/></svg>';
+const popCheck = '<svg class="pop-check" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7.5 5.5 10.5 11.5 3.5"/></svg>';
+let popSeq = 0, popOpen = null;
+function enhanceSelect(sel) {
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'popbtn'; btn.id = 'pop-' + (sel.id || 'n' + ++popSeq);
+  btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-label', sel.getAttribute('aria-label') || sel.closest('.row')?.querySelector('.row-l b')?.textContent || '日志类型');
+  btn.innerHTML = `<span class="pop-val">${[...sel.options].map(o => `<span>${o.text}</span>`).join('')}<span class="unk">—</span></span>${popChev}`;
+  sel.after(btn); sel.hidden = true; sel._pop = btn; btn._sel = sel;
+  btn.addEventListener('click', () => { if (popOpen?.btn === btn) closePop(); else openPop(btn); });
+  btn.addEventListener('keydown', e => { if (['ArrowDown', 'ArrowUp', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); openPop(btn); } });
+  syncPop(sel);
+}
+function syncPop(sel) {
+  const btn = sel._pop; if (!btn) return;
+  const unk = sel.hasAttribute('data-unknown');
+  [...btn.firstElementChild.children].forEach((s, i) => s.classList.toggle('on', unk ? i === sel.options.length : i === sel.selectedIndex));
+  btn.disabled = sel.disabled;
+  btn.dataset.value = unk ? '' : sel.value;
+  if (popOpen?.btn === btn && sel.disabled) closePop(true);
+}
+function syncPops() { $$('select').forEach(syncPop); }
+function popActive(i, scroll = true) {
+  const P = popOpen; if (!P) return;
+  P.active = i;
+  const opts = $$('.pop-opt', P.m);
+  opts.forEach((o, k) => o.classList.toggle('active', k === i));
+  if (opts[i]) { P.m.setAttribute('aria-activedescendant', opts[i].id); if (scroll) opts[i].scrollIntoView({ block: 'nearest' }); } else P.m.removeAttribute('aria-activedescendant');
+}
+function openPop(btn) {
+  if (btn.disabled || popOpen?.btn === btn) return;
+  if (popOpen) closePop(true);
+  const sel = btn._sel, cur = sel.dataset.cur, unk = sel.hasAttribute('data-unknown');
+  const m = document.createElement('div');
+  m.className = 'popmenu'; m.id = btn.id + '-menu'; m.tabIndex = -1;
+  m.setAttribute('role', 'listbox'); m.setAttribute('aria-label', btn.getAttribute('aria-label'));
+  m.innerHTML = [...sel.options].map((o, i) => `<div class="pop-opt" role="option" id="${m.id}-${i}" data-i="${i}" aria-selected="${!unk && i === sel.selectedIndex}">${popCheck}<span class="pop-t">${o.text}</span>${cur && o.value === cur ? '<i class="pop-cur" aria-hidden="true"></i><span class="vh">（设备当前值）</span>' : ''}</div>`).join('');
+  document.body.append(m);
+  const b = btn.getBoundingClientRect(), opts = $$('.pop-opt', m);
+  const si = unk ? 0 : Math.max(0, sel.selectedIndex), so = opts[si];
+  m.style.minWidth = b.width + 24 + 'px';
+  const mh = m.offsetHeight, mw = m.offsetWidth;
+  let top = b.top + (b.height - so.offsetHeight) / 2 - so.offsetTop, oy = so.offsetTop + so.offsetHeight / 2;
+  m.dataset.place = 'align';
+  if (top < 8 || top + mh > innerHeight - 8) {
+    top = b.bottom + 4; oy = 0; m.dataset.place = 'below';
+    if (top + mh > innerHeight - 8) m.style.maxHeight = Math.max(96, innerHeight - top - 8) + 'px';
+  }
+  const left = Math.min(Math.max(8, b.left - 19), innerWidth - mw - 8);
+  Object.assign(m.style, { left: left + 'px', top: top + 'px', transformOrigin: `${b.left + 19 - left}px ${oy}px` });
+  btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-controls', m.id); btn.classList.add('open');
+  popOpen = { btn, sel, m, active: -1, typed: '', tt: 0, at: performance.now() };
+  popActive(si, false);
+  m.focus({ preventScroll: true });
+  m.addEventListener('pointermove', e => { const o = e.target.closest('.pop-opt'); if (o && +o.dataset.i !== popOpen?.active) popActive(+o.dataset.i, false); });
+  m.addEventListener('pointerleave', () => popActive(-1));
+  m.addEventListener('click', e => { const o = e.target.closest('.pop-opt'); if (o) popPick(+o.dataset.i); });
+  m.addEventListener('keydown', popKey);
+}
+function popPick(i) {
+  const P = popOpen; if (!P) return;
+  const sel = P.sel, changed = sel.selectedIndex !== i || sel.hasAttribute('data-unknown');
+  sel.selectedIndex = i;
+  closePop();
+  if (changed) { sel.dispatchEvent(new Event('input', { bubbles: true })); sel.dispatchEvent(new Event('change', { bubbles: true })); }
+  syncPop(sel);
+}
+function closePop(instant) {
+  const P = popOpen; if (!P) return;
+  popOpen = null;
+  P.btn.setAttribute('aria-expanded', 'false'); P.btn.removeAttribute('aria-controls'); P.btn.classList.remove('open');
+  if (P.m.contains(document.activeElement)) P.btn.focus({ preventScroll: true });
+  if (instant || S.rm) { P.m.remove(); return; }
+  P.m.removeAttribute('id'); P.m.querySelectorAll('[id]').forEach(o => o.removeAttribute('id'));
+  P.m.setAttribute('aria-hidden', 'true');
+  P.m.classList.add('out'); setTimeout(() => P.m.remove(), T(150));
+}
+function popKey(e) {
+  const P = popOpen; if (!P) return;
+  const n = P.sel.options.length, a = P.active;
+  const nav = { ArrowDown: a < 0 ? 0 : Math.min(n - 1, a + 1), ArrowUp: a < 0 ? n - 1 : Math.max(0, a - 1), Home: 0, End: n - 1 }[e.key];
+  if (nav != null) { e.preventDefault(); popActive(nav); return; }
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (a >= 0) popPick(a); else closePop(); return; }
+  if (e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); closePop(); return; }
+  if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+  e.preventDefault();
+  clearTimeout(P.tt); P.typed += e.key.toLowerCase(); P.tt = setTimeout(() => { P.typed = ''; }, 700);
+  const texts = [...P.sel.options].map(o => o.text), start = P.typed.length === 1 ? a + 1 : Math.max(0, a);
+  for (let k = 0; k < n; k++) {
+    const i = (start + k) % n;
+    if (texts[i].toLowerCase().startsWith(P.typed) || initials(texts[i]).startsWith(P.typed)) { popActive(i); break; }
+  }
+}
+document.addEventListener('pointerdown', e => { if (popOpen && !e.target.closest('.popmenu') && e.target.closest('.popbtn') !== popOpen.btn) closePop(); }, true);
+document.addEventListener('scroll', e => { if (popOpen && e.target !== popOpen.m && performance.now() - popOpen.at > 450) closePop(true); }, true);
+addEventListener('resize', () => closePop(true));
+$$('select').forEach(enhanceSelect);
+
+/* ---------- 渲染入口 ---------- */
+function renderAll() { renderStatus(); renderOverview(); renderFan(); renderLight(); renderAux(); renderPref(); renderCaps(); renderPlugin(); renderDC(); syncPops(); }
+
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) { S.rm = true; root.classList.add('rm'); $('#pv-rm').checked = true; }
+applyTheme(S.theme);
+setSide(root.dataset.side, false);
+segSet('theme', S.theme); segSet('scn', S.scn); segSet('ts', '1'); segSet('curve', 'cpu');
+segSet('settingsTab', S.settingsTab);
+$$('.slider').forEach(s => s.style.setProperty('--p', (s.value - s.min) / (s.max - s.min) * 100 + '%'));
+renderPoints();
+renderAll();
+tick(true);
+placeNav(true);
+showPage(true);
+addEventListener('resize', () => placeNav(true));
+setInterval(() => { if (!document.hidden && S.sim) tick(); }, 2500);
+if (qs.get('pv') === '1') $('#pv-fab').click();
+})();
+</script>
+</body>
+</html>

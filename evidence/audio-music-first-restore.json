@@ -1,0 +1,208 @@
+{
+  "before": {
+    "error": null,
+    "raw": {
+      "bytes_received": 100,
+      "bytes_written": 33,
+      "dispatch_attempted": true,
+      "error": null,
+      "packet_id": 20,
+      "request": {
+        "Function": "SOUND_MODE"
+      },
+      "response": {
+        "data": {
+          "function": "DTS",
+          "mode": 1
+        },
+        "request": "SOUND_MODE",
+        "result": "0"
+      }
+    },
+    "value": {
+      "availability": "available",
+      "preset": "movie"
+    }
+  },
+  "capability": {
+    "error": null,
+    "raw": {
+      "bytes_received": 172,
+      "bytes_written": 41,
+      "dispatch_attempted": true,
+      "error": null,
+      "packet_id": 0,
+      "request": {
+        "Function": "SUPPORT_AUDIO_MODE"
+      },
+      "response": {
+        "data": [
+          "MUSIC",
+          "MOVIE",
+          "VOICE",
+          "STRATEGY",
+          "RPG",
+          "SHOOTER",
+          "CUSTOM_AUDIO",
+          "AUTOMATIC"
+        ],
+        "request": "SUPPORT_AUDIO_MODE",
+        "result": 0
+      }
+    },
+    "value": {
+      "supported": [
+        "music",
+        "movie",
+        "voice",
+        "strategy",
+        "rpg",
+        "shooter",
+        "custom",
+        "automatic"
+      ],
+      "unrecognized": []
+    }
+  },
+  "identity": {
+    "bios": "V1.18",
+    "model": "Predator PHN16-71"
+  },
+  "message": "Original audio restore remains unconfirmed; inspect raw SET/error and GET",
+  "original": "movie",
+  "original_state_restored": false,
+  "outcome": "restore_unconfirmed",
+  "restore": {
+    "ack": "unknown",
+    "after": {
+      "error": null,
+      "raw": {
+        "bytes_received": 100,
+        "bytes_written": 33,
+        "dispatch_attempted": true,
+        "error": null,
+        "packet_id": 20,
+        "request": {
+          "Function": "SOUND_MODE"
+        },
+        "response": {
+          "data": {
+            "function": "DTS",
+            "mode": 0
+          },
+          "request": "SOUND_MODE",
+          "result": "0"
+        }
+      },
+      "value": {
+        "availability": "available",
+        "preset": "music"
+      }
+    },
+    "before": null,
+    "capability": null,
+    "message": "Audio SET acknowledgement is unverified; independent GET never substitutes for a reviewed ACK",
+    "readback_confirmed": false,
+    "status": "unconfirmed",
+    "target": "movie",
+    "write": {
+      "bytes_received": 47,
+      "bytes_written": 73,
+      "dispatch_attempted": true,
+      "error": null,
+      "packet_id": 100,
+      "request": {
+        "Function": "SOUND_MODE",
+        "Parameter": {
+          "function": "DTS",
+          "mode": 1
+        }
+      },
+      "response": {
+        "request": "SOUND_MODE",
+        "result": "0"
+      }
+    }
+  },
+  "restore_attempted": true,
+  "restore_required": true,
+  "setter_acks_confirmed": false,
+  "target": "music",
+  "target_readback_confirmed": false,
+  "trial": {
+    "ack": "unknown",
+    "after": {
+      "error": null,
+      "raw": {
+        "bytes_received": 100,
+        "bytes_written": 33,
+        "dispatch_attempted": true,
+        "error": null,
+        "packet_id": 20,
+        "request": {
+          "Function": "SOUND_MODE"
+        },
+        "response": {
+          "data": {
+            "function": "DTS",
+            "mode": 1
+          },
+          "request": "SOUND_MODE",
+          "result": "0"
+        }
+      },
+      "value": {
+        "availability": "available",
+        "preset": "movie"
+      }
+    },
+    "before": {
+      "error": null,
+      "raw": {
+        "bytes_received": 100,
+        "bytes_written": 33,
+        "dispatch_attempted": true,
+        "error": null,
+        "packet_id": 20,
+        "request": {
+          "Function": "SOUND_MODE"
+        },
+        "response": {
+          "data": {
+            "function": "DTS",
+            "mode": 1
+          },
+          "request": "SOUND_MODE",
+          "result": "0"
+        }
+      },
+      "value": {
+        "availability": "available",
+        "preset": "movie"
+      }
+    },
+    "capability": null,
+    "message": "Audio SET acknowledgement is unverified; independent GET never substitutes for a reviewed ACK",
+    "readback_confirmed": false,
+    "status": "unconfirmed",
+    "target": "music",
+    "write": {
+      "bytes_received": 47,
+      "bytes_written": 73,
+      "dispatch_attempted": true,
+      "error": null,
+      "packet_id": 100,
+      "request": {
+        "Function": "SOUND_MODE",
+        "Parameter": {
+          "function": "DTS",
+          "mode": 0
+        }
+      },
+      "response": {
+        "request": "SOUND_MODE",
+        "result": "0"
+      }
+    }
+  }
+}

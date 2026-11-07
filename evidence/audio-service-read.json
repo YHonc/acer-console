@@ -1,0 +1,38 @@
+{
+  "captured_at": "2026-11-01T20:28:16.0426318+08:00",
+  "reads": [
+    {
+      "packet_id": 0,
+      "function": "SUPPORT_AUDIO_MODE",
+      "response": {
+        "data": [
+          "MUSIC",
+          "MOVIE",
+          "VOICE",
+          "STRATEGY",
+          "RPG",
+          "SHOOTER",
+          "CUSTOM_AUDIO",
+          "AUTOMATIC"
+        ],
+        "request": "SUPPORT_AUDIO_MODE",
+        "result": 0
+      },
+      "error": null
+    },
+    {
+      "packet_id": 20,
+      "function": "SOUND_MODE",
+      "response": {
+        "data": {
+          "function": "DTS",
+          "mode": 1
+        },
+        "request": "SOUND_MODE",
+        "result": "0"
+      },
+      "error": null
+    }
+  ],
+  "writes_attempted": false
+}

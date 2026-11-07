@@ -1,0 +1,22 @@
+[package]
+name = "acer-console"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-dialog = "=2.8.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+acer-device = { path = "../../../crates/acer-device" }
+acer-protocol = { path = "../../../crates/acer-protocol" }
+acer-broker = { path = "../../../crates/acer-broker" }
+acer-system = { path = "../../../crates/acer-system" }
+acer-rules = { path = "../../../crates/acer-rules" }

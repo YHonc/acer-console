@@ -1,0 +1,199 @@
+{
+  "identity": {
+    "bios": "V1.18",
+    "model": "Predator PHN16-71"
+  },
+  "message": "Both readbacks match, but setter ACK remains unknown; no Applied claim or missing-return compatibility",
+  "original": {
+    "ack": "confirmed",
+    "decoded_state": {
+      "enabled": true,
+      "setting": "lcd_overdrive"
+    },
+    "raw": {
+      "class": "AcerGamingFunction",
+      "error": null,
+      "input": {
+        "gmInput": {
+          "type": "unsigned",
+          "value": "0"
+        }
+      },
+      "method": "GetGamingProfile",
+      "output": {
+        "gmOutput": {
+          "type": "unsigned",
+          "value": "281474993487872"
+        }
+      }
+    },
+    "setting": "lcd_overdrive",
+    "state": {
+      "enabled": true,
+      "setting": "lcd_overdrive"
+    }
+  },
+  "original_state_restored": true,
+  "outcome": "readbacks_confirmed_acks_unknown",
+  "restore": {
+    "after": {
+      "ack": "confirmed",
+      "decoded_state": {
+        "enabled": true,
+        "setting": "lcd_overdrive"
+      },
+      "raw": {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        },
+        "method": "GetGamingProfile",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "281474993487872"
+          }
+        }
+      },
+      "setting": "lcd_overdrive",
+      "state": {
+        "enabled": true,
+        "setting": "lcd_overdrive"
+      }
+    },
+    "before": null,
+    "enabled": true,
+    "expected": {
+      "enabled": true,
+      "setting": "lcd_overdrive"
+    },
+    "message": "Direct SET ACK/readback remains unconfirmed; readback never substitutes for ACK",
+    "readback_confirmed": true,
+    "setting": "lcd_overdrive",
+    "status": "unconfirmed",
+    "write_ack": "unknown",
+    "writes": [
+      {
+        "attempted": true,
+        "raw": {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "281474976710672"
+            }
+          },
+          "method": "SetGamingProfile",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "restore_readback_confirmed": true,
+  "restore_required": true,
+  "setter_acks_confirmed": false,
+  "setting": "lcd_overdrive",
+  "target_readback_confirmed": true,
+  "trial": {
+    "after": {
+      "ack": "confirmed",
+      "decoded_state": {
+        "enabled": false,
+        "setting": "lcd_overdrive"
+      },
+      "raw": {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        },
+        "method": "GetGamingProfile",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "16777216"
+          }
+        }
+      },
+      "setting": "lcd_overdrive",
+      "state": {
+        "enabled": false,
+        "setting": "lcd_overdrive"
+      }
+    },
+    "before": {
+      "ack": "confirmed",
+      "decoded_state": {
+        "enabled": true,
+        "setting": "lcd_overdrive"
+      },
+      "raw": {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        },
+        "method": "GetGamingProfile",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "281474993487872"
+          }
+        }
+      },
+      "setting": "lcd_overdrive",
+      "state": {
+        "enabled": true,
+        "setting": "lcd_overdrive"
+      }
+    },
+    "enabled": false,
+    "expected": {
+      "enabled": false,
+      "setting": "lcd_overdrive"
+    },
+    "message": "Direct SET ACK/readback remains unconfirmed; readback never substitutes for ACK",
+    "readback_confirmed": true,
+    "setting": "lcd_overdrive",
+    "status": "unconfirmed",
+    "write_ack": "unknown",
+    "writes": [
+      {
+        "attempted": true,
+        "raw": {
+          "class": "AcerGamingFunction",
+          "error": null,
+          "input": {
+            "gmInput": {
+              "type": "unsigned",
+              "value": "16"
+            }
+          },
+          "method": "SetGamingProfile",
+          "output": {
+            "gmOutput": {
+              "type": "unsigned",
+              "value": "0"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

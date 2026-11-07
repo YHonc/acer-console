@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main-events",
+  "description": "Receive native device status refresh notifications",
+  "windows": ["main"],
+  "permissions": ["core:event:default"]
+}

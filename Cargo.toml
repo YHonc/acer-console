@@ -1,0 +1,8 @@
+[workspace]
+members = ["crates/acer-boot-logo", "crates/acer-controls", "crates/acer-protocol", "crates/acer-device", "crates/acer-broker", "crates/acer-system", "crates/acer-rules", "tools/probe", "apps/desktop/src-tauri"]
+resolver = "2"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

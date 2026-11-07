@@ -1,0 +1,87 @@
+{
+  "identity": {
+    "bios": "V1.18",
+    "model": "Predator PHN16-71"
+  },
+  "readings": [
+    {
+      "ack": "unknown",
+      "decoded_state": {
+        "enabled": true,
+        "setting": "lcd_overdrive"
+      },
+      "raw": {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "0"
+          }
+        },
+        "method": "GetGamingProfile",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "281474993487872"
+          }
+        }
+      },
+      "setting": "lcd_overdrive",
+      "state": null
+    },
+    {
+      "ack": "unknown",
+      "decoded_state": {
+        "enabled": true,
+        "setting": "boot_sound"
+      },
+      "raw": {
+        "class": "AcerGamingFunction",
+        "error": null,
+        "input": {
+          "gmInput": {
+            "type": "unsigned",
+            "value": "6"
+          }
+        },
+        "method": "GetGamingMiscSetting",
+        "output": {
+          "gmOutput": {
+            "type": "unsigned",
+            "value": "256"
+          }
+        }
+      },
+      "setting": "boot_sound",
+      "state": null
+    },
+    {
+      "ack": "unknown",
+      "decoded_state": {
+        "brightness": 0,
+        "enabled": true,
+        "setting": "backlight_timeout"
+      },
+      "raw": {
+        "class": "APGeAction",
+        "error": null,
+        "input": {
+          "uiInput": {
+            "type": "unsigned",
+            "value": "558081"
+          }
+        },
+        "method": "GetFunction",
+        "output": {
+          "uiOutput": {
+            "type": "unsigned",
+            "value": "32985349357568"
+          }
+        }
+      },
+      "setting": "backlight_timeout",
+      "state": null
+    }
+  ]
+}
