@@ -6,6 +6,8 @@
 
 在 [Releases](https://github.com/YHonc/acer-console/releases) 下载 `AcerConsole-v0.1.0-windows-x64.zip`，解压后运行 `acer-console.exe`。需要 Windows 10/11 和 WebView2 Runtime；首次运行前请阅读包内的 `使用与恢复.md`。发布包不含 Device Center 外设模块，没有模块时外设页显示“未发现”，其他功能不受影响。
 
+外设模块是一个独立仓库：[YHonc/device-center](https://github.com/YHonc/device-center)。它也可以单独运行。要在控制台里使用外设页，先从它的 [Releases](https://github.com/YHonc/device-center/releases) 下载 `DeviceCenter-module-v0.1.1.zip`，再把其中的 `device-center/` 放到 `acer-console.exe` 旁边的 `modules/` 目录。
+
 > 本项目与 Acer 无关，也不是官方软件。协议来自对本机厂商软件和固件接口的逆向分析，只在上述机型和 BIOS 上测试过。硬件写入会改变风扇、灯光、充电等实际状态，请先阅读[使用与恢复](docs/使用与恢复.md)。
 
 ## 设计目的
@@ -98,7 +100,7 @@ cd apps/desktop; npm ci; npm run check; npm run tauri dev
 详细计划见 [路线规划](docs/路线规划-2026-11-08.md)，按优先级：
 
 1. v0.1.0 实机验收：发布包、界面改动、风扇/性能模式/灯光回归。
-2. Device Center 模块收口：外设模块的分支合回它的主仓库，随发布包一起提供，并完成两个进程的互操作验收。
+2. Device Center 外设模块：继续作为独立仓库发布（[v0.1.1](https://github.com/YHonc/device-center/releases/tag/v0.1.1)），完成与控制台两个真实进程之间的配合验收。
 3. 软件温控曲线的本机验收：长时间运行、停止、退出，以及睡眠和唤醒后的恢复。
 4. 精确功耗：先完成 GPU 只读桥的本机验证，再设计 CPU/GPU 功耗的正式界面和生命周期管理。所有功耗写入都要逐项确认后再做。
 5. 外设二期：鼠标性能项、小米云登录、键盘按键层、鼠标宏。
@@ -108,4 +110,4 @@ cd apps/desktop; npm ci; npm run check; npm run tauri dev
 
 ## 许可证
 
-MIT，见 [LICENSE](LICENSE)。Device Center 外设模块在独立仓库，沿用它自己的许可证（GPL/MIT 混合），不在本仓库内。
+MIT，见 [LICENSE](LICENSE)。Device Center 外设模块在独立仓库 [YHonc/device-center](https://github.com/YHonc/device-center)，采用 GPL-3.0-only，不在本仓库内。
