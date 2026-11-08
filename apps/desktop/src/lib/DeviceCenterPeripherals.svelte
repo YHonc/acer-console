@@ -68,8 +68,8 @@
       <button class="grip" type="button" aria-label={'调整顺序：'+device.name} aria-describedby="dc-order-help" onkeydown={e=>key(e,device.id,index)} onpointerdown={e=>start(e,device.id)} onpointermove={pointer} onpointerup={end} onpointercancel={end}>
         <svg viewBox="0 0 8 14" aria-hidden="true">{#each [2,7,12] as y}<circle cx="2" cy={y} r="1"/><circle cx="6" cy={y} r="1"/>{/each}</svg>
       </button>
-      <span class="sq {device.kind==='mouse'?'blue':device.kind==='kb'?'gray':'orange'}"><Icon name={device.kind==='kb'?'key':device.kind==='mouse'?'mouse':'lamp'} size={15}/></span>
-      <span class="row-l"><b>{device.name}</b><small><i class="dot" class:ok={moduleState==='running'&&device.connected===true}></i> {moduleState!=='running'||device.connected==null?'状态未知':device.stale?'读数过期':device.connected?'已连接':'已断开'}{device.connected===true&&moduleState==='running'?' · '+(device.kind==='mouse'?'2.4G 接收器':device.kind==='kb'?'有线 USB':'局域网 Wi-Fi'):''}</small></span><span class="row-v">电量 {moduleState==='running'&&device.connected&&device.battery!=null?device.battery+'%':'—'}</span>
+      <span class="sq {device.kind==='mouse'?'blue':device.kind==='kb'?'gray':device.kind==='lamp'?'orange':'teal'}"><Icon name={device.kind==='kb'?'key':device.kind==='mouse'?'mouse':device.kind==='lamp'?'lamp':'receiver'} size={15}/></span>
+      <span class="row-l"><b>{device.name}</b><small><i class="dot" class:ok={moduleState==='running'&&device.connected===true}></i> {device.kind==='lamp'&&moduleState==='running'&&dc.config?.configured===false?'未配置连接':moduleState!=='running'||device.connected==null?'状态未知':device.stale?'读数过期':device.connected?'已连接':'已断开'}{device.connected===true&&moduleState==='running'?' · '+(device.kind==='mouse'?'2.4G 接收器':device.kind==='kb'?'有线 USB':'局域网 Wi-Fi'):''}</small></span><span class="row-v">电量 {moduleState==='running'&&device.connected&&device.battery!=null?device.battery+'%':'—'}</span>
     </div>
   {/each}
 </div>

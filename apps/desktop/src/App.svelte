@@ -4,7 +4,7 @@
      that turns into a frosted toolbar once the large title scrolls away, staggered page entry,
      directional sub-page slides and a circular theme reveal.
      All underlying device states, handlers, drafts, APIs, and safety fallbacks are preserved. */
-  import { onMount, flushSync, untrack } from 'svelte';
+  import { onMount, flushSync, untrack, tick } from 'svelte';
   import { slide } from 'svelte/transition';
   import { cubicIn, quintOut } from 'svelte/easing';
   import { listen } from '@tauri-apps/api/event';
@@ -38,6 +38,7 @@
   import TopToast from './lib/ui/TopToast.svelte';
   import LogPopover from './lib/ui/LogPopover.svelte';
   import Switch from './lib/ui/Switch.svelte';
+  import { sideLayout, setSideLayout, saveSideLayout, applySideLayout, isSideDefault, SIDE_DEFAULTS, SIDE_LIMITS } from './lib/sideLayout.svelte';
   import {
     api,
     errorText,
@@ -116,6 +117,51 @@
     document.documentElement.dataset.side = sideCollapsed ? 'collapsed' : 'expanded';
     untrack(hideSideTip);
   });
+  /* 导航高亮：按当前项的实际位置滑动，不依赖固定行高。 */
+  let navEl = $state<HTMLElement>();
+  let navHl = $state({ y: 0, h: 0 });
+  function placeNavHl() {
+    const on = navEl?.querySelector<HTMLElement>('button.on');
+    navHl = on ? { y: on.offsetTop, h: on.offsetHeight } : { y: navHl.y, h: 0 };
+  }
+  $effect(() => { void page; void dc.module?.state; void tick().then(placeNavHl); });
+  $effect(() => {
+    if (!navEl) return;
+    const observer = new ResizeObserver(placeNavHl);
+    observer.observe(navEl);
+    return () => observer.disconnect();
+  });
+
+  /* 侧栏宽度与边距：设置页可调，也可拖动侧栏右边缘（双击恢复默认宽度）。 */
+  applySideLayout();
+  let sideResizing = $state(false);
+  function startSideResize(event: PointerEvent) {
+    if (event.button !== 0 || sideCollapsed) return;
+    event.preventDefault();
+    const handle = event.currentTarget as HTMLElement;
+    handle.setPointerCapture(event.pointerId);
+    const startX = event.clientX, startW = sideLayout.width;
+    sideResizing = true;
+    const move = (e: PointerEvent) => setSideLayout({ width: startW + e.clientX - startX }, false);
+    const end = () => {
+      sideResizing = false; saveSideLayout();
+      handle.removeEventListener('pointermove', move);
+      handle.removeEventListener('pointerup', end);
+      handle.removeEventListener('pointercancel', end);
+    };
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', end);
+    handle.addEventListener('pointercancel', end);
+  }
+  function sideResizeKey(event: KeyboardEvent) {
+    const step = event.shiftKey ? 16 : 4;
+    const next = event.key === 'ArrowLeft' ? sideLayout.width - step : event.key === 'ArrowRight' ? sideLayout.width + step
+      : event.key === 'Home' ? SIDE_LIMITS.width[0] : event.key === 'End' ? SIDE_LIMITS.width[1] : null;
+    if (next == null) return;
+    event.preventDefault();
+    setSideLayout({ width: next });
+  }
+
   function toggleSide() {
     const next = sideCollapsed ? 'expanded' : 'collapsed';
     if (narrow) { sideOverride = next; return; }
@@ -934,32 +980,32 @@
 
 <a class="skip" href="#content">跳转到主要内容</a>
 
-<div class="app" class:window-maximized={isWindowMaximized}>
+<div class="app" class:window-maximized={isWindowMaximized} class:side-resizing={sideResizing}>
   <!-- Blank sidebar surface also drags the frameless window; its buttons do not. -->
   <aside class="side" id="sidebar" data-tauri-drag-region>
     <div class="brand" data-tauri-drag-region>
       <span class="brand-mark" aria-hidden="true"><Icon name="bolt" size={16} /></span>
       <div class="brand-text">
         <b>Acer Console</b>
-        <small>Predator PHN16-71 控制台</small>
+        <small>Predator 控制台</small>
       </div>
+      <button
+        type="button"
+        class="side-toggle"
+        aria-controls="sidebar"
+        aria-expanded={!sideCollapsed}
+        aria-label={sideCollapsed ? '展开侧栏' : '收起侧栏'}
+        onclick={() => { toggleSide(); hideSideTip(); }}
+        onpointerenter={e => showSideTip(e, (sideCollapsed ? '展开侧栏' : '收起侧栏') + ' · Ctrl+B', true)}
+        onpointerleave={hideSideTip}
+        onfocus={e => showSideTip(e, (sideCollapsed ? '展开侧栏' : '收起侧栏') + ' · Ctrl+B', true)}
+        onblur={hideSideTip}
+      ><Icon name="sidebar" size={17} /></button>
     </div>
-    <button
-      type="button"
-      class="side-toggle"
-      aria-controls="sidebar"
-      aria-expanded={!sideCollapsed}
-      aria-label={sideCollapsed ? '展开侧栏' : '收起侧栏'}
-      onclick={() => { toggleSide(); hideSideTip(); }}
-      onpointerenter={e => showSideTip(e, (sideCollapsed ? '展开侧栏' : '收起侧栏') + ' · Ctrl+B', true)}
-      onpointerleave={hideSideTip}
-      onfocus={e => showSideTip(e, (sideCollapsed ? '展开侧栏' : '收起侧栏') + ' · Ctrl+B', true)}
-      onblur={hideSideTip}
-    ><Icon name="sidebar" size={17} /></button>
 
-    <nav class="nav" style="--nav-index: {pageIndex}; --nav-height:{pageIndex>3?32:36}px" aria-label="主导航">
-      <i class="nav-hl" aria-hidden="true"></i>
-      {#each pages as item}
+    <nav class="nav" bind:this={navEl} aria-label="主导航">
+      <i class="nav-hl" class:shown={navHl.h > 0} aria-hidden="true" style="transform: translateY({navHl.y}px); height: {navHl.h || 36}px"></i>
+      {#each pages.filter(p => p.id !== 'plugin') as item}
         <button
           type="button"
           class:on={page === item.id}
@@ -974,11 +1020,12 @@
           <span class="nav-label">{item.label}</span>
         </button>
       {/each}
+      <div class="nav-sec" id="nav-sec-plugins"><span>服务插件</span></div>
       {#each [{id:'acer' as const,label:'Acer 服务保护',icon:'shield',tone:'teal'}, {id:'dc' as const,label:'Device Center 外设',icon:'mouse',tone:'indigo'}] as item}
         <div class="nav-sub-wrap" class:absent={item.id === 'dc' && dc.module?.state === 'absent'} inert={item.id === 'dc' && dc.module?.state === 'absent'}>
-          <button type="button" class="nav-sub" class:on={page===item.id} aria-current={page===item.id?'page':undefined}
+          <button type="button" class="nav-sub" class:on={page===item.id} aria-current={page===item.id?'page':undefined} aria-describedby="nav-sec-plugins"
             onclick={()=>go(item.id)} onpointerenter={e=>showSideTip(e,item.label)} onpointerleave={hideSideTip} onfocus={e=>showSideTip(e,item.label)} onblur={hideSideTip}>
-            <span class="sq {item.tone}"><Icon name={item.icon} size={12}/></span><span class="nav-label">{item.label}</span>
+            <span class="sq {item.tone}"><Icon name={item.icon} size={15} strokeWidth={2}/></span><span class="nav-label">{item.label}</span>
           </button>
         </div>
       {/each}
@@ -986,12 +1033,11 @@
 
     <div class="side-foot">
       <div class="foot-full">
-        <b>{capabilities?.model || '等待设备连接'}</b>
-        <span>{capabilities?.bios_version ? `BIOS ${capabilities.bios_version}` : 'BIOS 版本未知'}</span>
-        <div class="conn" class:ok={connTone === 'ok'} class:wn={connTone === 'wn'} class:er={connTone === 'er'}>
-          <i class="dot"></i>
-          <span>{connText}</span>
-        </div>
+        <i class="dot" class:ok={connTone === 'ok'} class:wn={connTone === 'wn'} class:er={connTone === 'er'}></i>
+        <span class="foot-text">
+          <b>{capabilities?.model || '等待设备连接'}</b>
+          <span>{capabilities?.bios_version ? `BIOS ${capabilities.bios_version}` : 'BIOS 版本未知'} · {connText}</span>
+        </span>
       </div>
       <!-- 收起时只留状态点；文字由悬停提示给出 -->
       <span
@@ -1003,6 +1049,24 @@
         onpointerleave={hideSideTip}
       ><i class="dot"></i></span>
     </div>
+    {#if !sideCollapsed}
+      <!-- 可聚焦的 separator 是 ARIA 窗口分隔条模式（方向键调整宽度），svelte 将其视为非交互元素 -->
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+      <div
+        class="side-resize"
+        role="separator"
+        tabindex="0"
+        aria-orientation="vertical"
+        aria-controls="sidebar"
+        aria-label="调整侧栏宽度，双击恢复默认"
+        aria-valuenow={sideLayout.width}
+        aria-valuemin={SIDE_LIMITS.width[0]}
+        aria-valuemax={SIDE_LIMITS.width[1]}
+        onpointerdown={startSideResize}
+        onkeydown={sideResizeKey}
+        ondblclick={() => setSideLayout({ width: SIDE_DEFAULTS.width })}
+      ></div>
+    {/if}
   </aside>
   {#if sideTip}
     <div class="side-tip" role="tooltip" style="left: {sideTip.x}px; top: {sideTip.y}px;">{sideTip.text}</div>
@@ -1377,6 +1441,24 @@
                     </div>
                   </div>
 
+                  <div class="sh"><span>侧栏</span><span>本机界面偏好 · 立即生效</span></div>
+                  <div class="group" data-g="side">
+                    <div class="slider-row">
+                      <label for="side-width">宽度</label>
+                      <input id="side-width" class="slider" type="range" min={SIDE_LIMITS.width[0]} max={SIDE_LIMITS.width[1]} step="4" value={sideLayout.width} style:--p={(sideLayout.width - SIDE_LIMITS.width[0]) / (SIDE_LIMITS.width[1] - SIDE_LIMITS.width[0]) * 100 + '%'} oninput={e => setSideLayout({ width: +e.currentTarget.value }, false)} onchange={saveSideLayout}/>
+                      <output for="side-width">{sideLayout.width} px</output>
+                    </div>
+                    <div class="slider-row">
+                      <label for="side-pad">边距</label>
+                      <input id="side-pad" class="slider" type="range" min={SIDE_LIMITS.pad[0]} max={SIDE_LIMITS.pad[1]} step="1" value={sideLayout.pad} style:--p={(sideLayout.pad - SIDE_LIMITS.pad[0]) / (SIDE_LIMITS.pad[1] - SIDE_LIMITS.pad[0]) * 100 + '%'} oninput={e => setSideLayout({ pad: +e.currentTarget.value }, false)} onchange={saveSideLayout}/>
+                      <output for="side-pad">{sideLayout.pad} px</output>
+                    </div>
+                    <div class="row foot">
+                      <span class="hint">边距同时决定收起后的宽度（{40 + 2 * sideLayout.pad} px）。也可以拖动侧栏右边缘调整宽度，双击恢复默认。</span>
+                      <button type="button" class="btn" disabled={isSideDefault()} onclick={() => setSideLayout({ ...SIDE_DEFAULTS })}>恢复默认</button>
+                    </div>
+                  </div>
+
                   <div class="sh"><span>登录启动项</span></div>
                   <div class="group">
                     <div class="row">
@@ -1499,14 +1581,14 @@
     min-height: 0;
     min-width: 0;
     overflow: hidden;
-    padding: 16px 12px 14px;
+    padding: 14px var(--side-pad) 12px;
     background: var(--sidebar);
     backdrop-filter: blur(30px) saturate(180%);
     -webkit-backdrop-filter: blur(30px) saturate(180%);
     border-right: .5px solid var(--sep);
     user-select: none;
   }
-  .brand { display: flex; align-items: center; gap: 10px; min-height: 54px; padding: 6px 44px 18px 8px; white-space: nowrap; }
+  .brand { position: relative; display: flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: 14px; padding: 0 36px 0 8px; white-space: nowrap; }
   .brand-mark {
     width: 30px; height: 30px; border-radius: 8px; flex: none;
     display: grid; place-items: center;
@@ -1521,14 +1603,20 @@
 
   .nav { position: relative; display: grid; gap: 2px; }
   .nav-hl {
-    position: absolute; left: 0; right: 0; top: 0; height: 36px;
+    position: absolute; left: 0; right: 0; top: 0;
     border-radius: 9px;
     background: var(--surface);
     box-shadow: var(--shadow-thumb);
-    transform: translateY(calc(min(var(--nav-index, 0), 4) * 38px + max(0, var(--nav-index, 0) - 4) * 34px));
-    height: var(--nav-height,36px);
-    transition: transform var(--d-snappy) var(--spring-snappy);
+    opacity: 0;
+    transition: transform var(--d-snappy) var(--spring-snappy), height var(--d-snappy) var(--spring-snappy), opacity var(--d-fast);
   }
+  .nav-hl.shown { opacity: 1; }
+  /* 分节标题：展开时是小字，收起时退化成一条细线，占位高度不变，避免导航跳动 */
+  .nav-sec { position: relative; height: 30px; padding: 12px 8px 0; font-size: 11px; font-weight: 600; color: var(--label-3); white-space: nowrap; overflow: hidden; }
+  .nav-sec span { transition: opacity 220ms var(--ease-out) 110ms; }
+  .nav-sec::after { content: ''; position: absolute; left: 10px; right: 10px; top: 18px; height: .5px; background: var(--sep); opacity: 0; transition: opacity 120ms var(--ease-in); }
+  :global(:root[data-side="collapsed"]) .nav-sec span { opacity: 0; transition: opacity 120ms var(--ease-in); }
+  :global(:root[data-side="collapsed"]) .nav-sec::after { opacity: 1; transition: opacity var(--d-fast) var(--ease-out) 110ms; }
   :global(:root[data-theme="dark"]) .nav-hl { background: rgba(255, 255, 255, .1); }
   .nav button {
     position: relative; z-index: 1;
@@ -1545,7 +1633,7 @@
   .nav-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .side-toggle {
-    position: absolute; top: 23px; right: 18px; z-index: 2;
+    position: absolute; top: 8px; right: 6px; z-index: 2;
     width: 28px; height: 28px; padding: 0;
     border: 0; border-radius: 7px;
     background: none; color: var(--label-2);
@@ -1563,7 +1651,7 @@
     opacity: 0; pointer-events: none; transition: opacity 120ms var(--ease-in);
   }
   .foot-mini {
-    display: grid; place-items: center; align-self: end;
+    display: grid; place-items: center; align-self: center;
     width: 24px; height: 22px; margin: 0; border-radius: 6px;
     opacity: 0; pointer-events: none;
     transition: opacity 120ms var(--ease-in);
@@ -1585,11 +1673,21 @@
   }
   @keyframes side-tip-in { from { opacity: 0; transform: translate(-4px, -50%) scale(.96); } }
 
-  .side-foot { display: grid; margin-top: auto; padding: 12px 8px 0; border-top: .5px solid var(--sep); white-space: nowrap; }
+  .side-foot { display: grid; margin-top: auto; padding: 10px 0 0; border-top: .5px solid var(--sep); white-space: nowrap; }
   .side-foot > * { grid-area: 1 / 1; min-width: 0; }
-  .side-foot b { display: block; font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
-  .foot-full > span { display: block; font-size: 11px; color: var(--label-2); }
-  .conn { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 11px; color: var(--label-2); }
+  .foot-full { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 9px; }
+  .foot-full .dot { margin: 0 4px 0 2px; }
+  .foot-text { display: grid; min-width: 0; }
+  .foot-text b { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .foot-text span { font-size: 11px; color: var(--label-2); overflow: hidden; text-overflow: ellipsis; }
+  .foot-mini.conn { margin: 0; justify-self: center; }
+
+  /* 拖动侧栏右边缘调整宽度；拖动时关闭宽度过渡，跟手 */
+  .side-resize { position: absolute; top: 0; right: 0; bottom: 0; width: 6px; cursor: col-resize; z-index: 3; touch-action: none; }
+  .side-resize::after { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 2px; background: var(--accent); opacity: 0; transition: opacity var(--d-fast); }
+  .side-resize:hover::after, .side-resize:focus-visible::after, .side-resizing .side-resize::after { opacity: .6; }
+  .side-resize:focus-visible { outline: none; }
+  .app.side-resizing { transition: none; cursor: col-resize; user-select: none; }
 
   .ws { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
   .tb-slot { position: absolute; top: 0; left: 0; right: 0; z-index: 20; }
@@ -1740,7 +1838,7 @@
   @media (prefers-reduced-motion: reduce) {
     .stage > :global(*), .pane.active { animation: app-fade-in 140ms linear both; }
     .stage.leaving { transform: none; transition: opacity 140ms linear; }
-    .app, .side-tip, .nav-hl, .nav button, .tile, .meter i, .swap-text, .disc :global(.chev) { transition-duration: 0s; }
+    .app, .side-tip, .nav-hl, .nav-sec span, .nav-sec::after, .side-resize::after, .nav button, .tile, .meter i, .swap-text, .disc :global(.chev) { transition-duration: 0s; }
     .swap-text, .swap-text:first-child:not(.shown) { transform: none; }
     .nav button:active, .tile:active { transform: none; }
   }

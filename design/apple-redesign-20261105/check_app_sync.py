@@ -10,7 +10,7 @@ HERE = pathlib.Path(__file__).parent
 BASE = sys.argv[1] if len(sys.argv) > 1 else 'http://127.0.0.1:4173/'
 NAV = [('设备总览', None), ('性能与风扇', None), ('设备设置', '键盘灯光'),
        ('设备设置', '硬件辅助与电源'), ('设备设置', '应用与系统'),
-       ('服务插件', None)]  # DC has its own transport/read coalescing coverage in check_app_dc.py.
+       ('Acer 服务保护', None)]  # DC has its own transport/read coalescing coverage in check_app_dc.py.
 
 
 def go(page, nav, sub=None):

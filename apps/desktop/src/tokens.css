@@ -4,7 +4,8 @@
 /* ===================== 1. 设计令牌 ===================== */
 :root {
   color-scheme: light;
-  --side-w: 232px;
+  --side-pad: 12px;
+  --side-w: var(--side-w-open, 232px);
   --sb-thumb: rgba(0, 0, 0, .34); --sb-thumb-hover: rgba(0, 0, 0, .5); --sb-track: rgba(0, 0, 0, .035);
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif;
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif;
@@ -112,7 +113,7 @@
   color: var(--label);
 }
 
-:root[data-side="collapsed"] { --side-w: 64px; }
+:root[data-side="collapsed"] { --side-w: calc(40px + 2 * var(--side-pad)); }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -265,7 +266,8 @@ svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-widt
 .tag.pop { animation: tagPop var(--d-bouncy) var(--spring-bouncy); }
 
 .slider { -webkit-appearance: none; appearance: none; width: 100%; height: 24px; margin: 0; background: transparent; --p: 50%; }
-.slider::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--accent) var(--p), var(--fill-strong) var(--p)); }
+/* 填充层只铺在圆钮中心的移动范围内（两端各让出半个圆钮 11px），--p 与圆钮中心严格对齐 */
+.slider::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(var(--accent), var(--accent)) 0 0 / 12px 100% no-repeat, linear-gradient(90deg, var(--accent) var(--p), transparent var(--p)) 11px 0 / calc(100% - 22px) 100% no-repeat, var(--fill-strong); }
 .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -9px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .22), 0 0 0 .5px rgba(0, 0, 0, .06); transition: transform var(--d-bouncy) var(--spring-bouncy); }
 .slider:active::-webkit-slider-thumb { transform: scale(1.14); }
 .slider:disabled { opacity: .4; }
@@ -633,9 +635,7 @@ summary::-webkit-details-marker { display: none; }
 .nav-sub-wrap{display:grid;grid-template-rows:1fr;opacity:1;transition:grid-template-rows 200ms ease-in,opacity 200ms ease-in}
 .nav-sub-wrap.absent{grid-template-rows:0fr;opacity:0;pointer-events:none}
 .nav-sub-wrap>button{min-height:0;overflow:hidden}
-.nav .nav-sub.nav-sub{height:32px;padding-left:24px;width:100%;font-size:12.5px;transition:background-color var(--d-fast) var(--ease-out),padding var(--d-smooth) var(--spring-smooth),height var(--d-smooth) var(--spring-smooth),opacity var(--d-base) var(--ease-out)}
-.nav .nav-sub .sq{width:20px;height:20px;border-radius:5.5px}
-[data-side="collapsed"] .nav .nav-sub.nav-sub{padding-left:10px}
+.nav .nav-sub.nav-sub{width:100%;transition:background-color var(--d-fast) var(--ease-out),height var(--d-smooth) var(--spring-smooth),opacity var(--d-base) var(--ease-out)}
 .nav .nav-sub-wrap.absent>button.nav-sub{padding-top:0;padding-bottom:0;height:0}
 .sq.teal{background:linear-gradient(180deg,#4fc3f7,#1592d0)}
 .dev-row small .dot{display:inline-block;width:6px;height:6px;margin-right:2px;background:var(--label-3)}
@@ -660,3 +660,9 @@ summary::-webkit-details-marker { display: none; }
 .dc-mapping{position:fixed;inset:20% 25%;z-index:90;overflow:auto}.dc-mapping pre{padding:20px}
 @media(prefers-reduced-motion:reduce){.popmenu,.popmenu.out{animation:none}.nav-sub-wrap{transition:none}}
 :root[data-theme="dark"]{--menu-bg:rgba(42,42,46,.78);--shadow-menu:0 0 0 .5px rgba(255,255,255,.14),0 0 0 1px rgba(0,0,0,.5),0 16px 40px rgba(0,0,0,.55)}
+/* 挂灯：控制与连接合在同一分组，连接行可展开 */
+.lamp-conn{gap:12px;color:var(--label)}
+.lamp-conn .tag{flex:none}
+.lamp-conn .chev{display:grid;place-items:center;margin-left:auto;color:var(--label-3);transition:transform var(--d-smooth) var(--spring-smooth)}
+.lamp-conn[aria-expanded="true"] .chev{transform:rotate(90deg)}
+@media (prefers-reduced-motion: reduce){.lamp-conn .chev{transition:none}}

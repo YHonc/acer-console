@@ -9,6 +9,7 @@
   import Switch from './ui/Switch.svelte';
   import Collapse from './ui/Collapse.svelte';
   import ReadConflict from './ui/ReadConflict.svelte';
+  import Icon from './Icon.svelte';
   let { device }: {device:DcDevice}=$props();
   type Values=Record<string,number|string|boolean|null>;
   let draft=$state<Values>({}), edited=$state<Record<string,boolean>>({}), pending=$state<string[]>([]), errors=$state<Record<string,string>>({}), requested=$state<Record<string,boolean>>({});
@@ -37,9 +38,14 @@
       if(count!==(seenReadbacks[method]??0)){seenReadbacks[method]=count;untrack(()=>{for(const key of keys)if(errors[key]==='结果未知，请刷新读回')errors[key]='';});}
     }
   });
-  const configDirty=$derived(cfgEdited&&(ip!==dc.config?.ip||tokenEdit&&!!token));
+  /* 挂灯连接：未配置时直接要求输入 Token（不必先点“更换”）；已配置时 Token 省略表示保留原值。 */
+  const unconfigured=$derived(dc.config?.configured===false);
+  const tokenInput=$derived(tokenEdit||unconfigured);
+  const configDirty=$derived(cfgEdited&&(ip!==(dc.config?.ip??'')||tokenInput&&!!token));
   const ipBad=$derived(!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)||ip.split('.').some(v=>+v>255));
-  const tokenBad=$derived((tokenEdit||!dc.config?.configured)&&!/^[0-9a-fA-F]{32}$/.test(token));
+  const tokenBad=$derived(tokenInput&&!/^[0-9a-fA-F]{32}$/.test(token));
+  let connOpen=$state<boolean|null>(null);
+  const connShown=$derived(connOpen??(unconfigured||configDirty||!!errors.config));
   function edit(key:string,value:number|string|boolean){draft[key]=value;edited[key]=true;}
   function fields(group:string){return group==='mouse'?['dpi','reportRateHz']:group==='kb'?['reportRateHz','sleepSeconds']:group==='kbl'?['mode','brightness','speed','multiColor','rgb']:['brightness','temperature'];}
   const labels:Record<string,string>={dpi:'DPI',reportRateHz:'回报率',sleepSeconds:'休眠',mode:'模式',brightness:'亮度',speed:'速度',multiColor:'颜色',rgb:'RGB',temperature:'色温'};
@@ -79,6 +85,8 @@
   function options(key:string,fallback:number[]){const values=settings?.fields.find(f=>f.key===key)?.options?.map(o=>o.value)??fallback;return values.map((value,i)=>({value:String(value),label:String(value)+(i===values.length-1?' Hz':'')}));}
   function visible(key:string,method:DcMethod){return capable(method)&&(!settings||settings.fields.some(f=>f.key===key&&f.available));}
   const effectMode=$derived(lighting?.modes.find(m=>m.id===Number(draft.mode)));
+  /** 滑块填充：按草稿值在 [min,max] 中的位置；无读数时不填充。 */
+  function pct(value:Values[string],min:number,max:number){const n=Number(value);return value==null||!Number.isFinite(n)||max<=min?'0%':Math.min(100,Math.max(0,(n-min)/(max-min)*100))+'%';}
   function canApply(group:string){return capable(group==='kbl'?'keyboard.lighting.apply':group==='lamp'?'lamp.apply':'settings.apply');}
 </script>
 
@@ -98,7 +106,7 @@
   </div>
 {/snippet}
 {#snippet slider(label:string,key:string,min:number,max:number,step=1,enabled=true,suffix='')}
-  <div class="slider-row"><label for={device.id+'-'+key}>{label}</label><input id={device.id+'-'+key} class="slider" type="range" {min} {max} {step} value={Number(draft[key]??min)} disabled={!live||!enabled||read[key]==null} oninput={e=>edit(key,+e.currentTarget.value)}/><output>{live&&draft[key]!=null?String(draft[key])+suffix:'—'}</output></div>
+  <div class="slider-row"><label for={device.id+'-'+key}>{label}</label><input id={device.id+'-'+key} class="slider" type="range" {min} {max} {step} style:--p={pct(draft[key],min,max)} value={Number(draft[key]??min)} disabled={!live||!enabled||read[key]==null} oninput={e=>edit(key,+e.currentTarget.value)}/><output>{live&&draft[key]!=null?String(draft[key])+suffix:'—'}</output></div>
 {/snippet}
 
 <div class="dc-sec" data-sec={device.id}>
@@ -138,21 +146,31 @@
     </div>
   {/if}
 {:else if device.kind==='lamp'}
-  {#if capable('lamp.read')}{@render title(device.name,'lamp')}
+  {#if capable('lamp.read')||capable('lamp.config.read')}
+    <div class="sh"><span>{device.name}</span><span class="tag" class:ok={groupReady('lamp')&&!dirty('lamp')&&!configDirty} class:draft={configDirty||groupReady('lamp')&&dirty('lamp')}>{unconfigured?'未配置连接':configDirty?'连接待保存':!groupReady('lamp')?(device.stale?'读数过期':dc.module?.state==='running'&&device.connected===false?'设备已断开':'状态未知'):dirty('lamp')?'待应用 · 设备 '+summary('lamp'):'当前 · '+summary('lamp')}</span></div>
     <div class="group" data-g="lamp">
-      {#if capable('lamp.apply')}{@render toggle('挂灯开关','power','点击后立即写入并读回')}{/if}
-      {#if capable('lamp.apply')}{@render slider('亮度','brightness',1,100,1,true,'%')}
-      {@render slider('色温','temperature',2700,6500,100,true,' K')}{/if}
-      {@render footer('lamp')}
-    </div>
-  {/if}
-  {#if capable('lamp.config.read')}
-    <div class="sh"><span>挂灯连接</span><span class="tag" class:draft={configDirty} class:ok={!configDirty}>{configDirty?'待保存':'与已保存配置一致'}</span></div>
-    <div class="group">
-      <div class="row"><span class="row-l"><b>IP 地址</b><small>局域网地址，路由器重新分配后需更新</small></span>{#if capable('lamp.config.save')}<input class="field mono" aria-label="挂灯 IP 地址" spellcheck="false" value={dc.module?.state==='running'?ip:''} placeholder="—" disabled={dc.module?.state!=='running'} oninput={e=>{ip=e.currentTarget.value;cfgEdited=true;}}/>{:else}<span class="row-v">{dc.config?.ip??'—'}</span>{/if}</div>
-      <div class="row"><span class="row-l"><b>Token</b><small>使用 Windows DPAPI 加密保存，界面只显示末 4 位</small></span>{#if tokenEdit}<input class="field mono" type="password" aria-label="新的挂灯 Token" placeholder="32 位十六进制" bind:value={token} oninput={()=>cfgEdited=true}/>{:else}<span class="row-v mono">{dc.config?.tokenTail?'•••• •••• •••• '+dc.config.tokenTail:'—'}</span>{/if}{#if capable('lamp.config.save')}<button class="btn" disabled={dc.module?.state!=='running'} onclick={()=>{tokenEdit=!tokenEdit;token='';}}>{tokenEdit?'取消':'更换'}</button>{/if}</div>
-      <ReadConflict readKey={dc.config?JSON.stringify(dc.config):null} edited={cfgEdited} matches={!configDirty} label={dc.config?.ip??'—'} onadopt={()=>{ip=dc.config?.ip??'';token='';tokenEdit=false;cfgEdited=false;}}/>
-      <div class="row foot"><span class="hint" role="status">{errors.config||(ipBad?'IP 地址格式不正确。':tokenBad?'Token 应为 32 位十六进制。':configDirty?'有未保存的连接设置。':'保存后重新连接挂灯。')}</span>{#if capable('lamp.config.save')}<button class="btn primary" disabled={dc.module?.state!=='running'||!configDirty||ipBad||tokenBad||pending.includes('config')} onclick={()=>{const value={ip:ip.trim(),...(tokenEdit?{token:token.trim()}:{})};write('config',async()=>{const result=await dcApi.call<import('./dcTypes').DcLampConfig>('lamp.config.save',value);if(dc.module?.state==='running'&&writeEpoch===dc.epoch){dc.config=result;token='';tokenEdit=false;cfgEdited=false;}});}}>{#if pending.includes('config')}<span class="spinner"></span>{/if}保存连接</button>{/if}</div>
+      {#if capable('lamp.read')}
+        {#if capable('lamp.apply')}{@render toggle('挂灯开关','power','点击后立即写入并读回')}
+          {@render slider('亮度','brightness',1,100,1,true,'%')}
+          {@render slider('色温','temperature',2700,6500,100,true,' K')}{/if}
+        {#if unconfigured}
+          <div class="row foot"><span class="hint" role="status">尚未配置连接，填写下方 IP 地址和 Token 并保存后才能读取挂灯。</span></div>
+        {:else}{@render footer('lamp')}{/if}
+      {/if}
+      {#if capable('lamp.config.read')}
+        <button class="row lamp-conn" type="button" aria-expanded={connShown} aria-controls={device.id+'-conn'} onclick={()=>connOpen=!connShown}>
+          <span class="sq gray"><Icon name="settings" size={15}/></span>
+          <span class="row-l"><b>连接</b><small>{dc.module?.state!=='running'||!dc.config?'—':dc.config.configured?`${dc.config.ip??'—'} · Token 末 4 位 ${dc.config.tokenTail??'—'}`:'未配置'}</small></span>
+          {#if configDirty}<span class="tag draft">待保存</span>{/if}
+          <span class="chev"><Icon name="chev" size={14}/></span>
+        </button>
+        <Collapse open={connShown} id={device.id+'-conn'}>
+          <div class="row"><span class="row-l"><b>IP 地址</b><small>局域网地址，路由器重新分配后需更新</small></span>{#if capable('lamp.config.save')}<input class="field mono" aria-label="挂灯 IP 地址" spellcheck="false" value={dc.module?.state==='running'?ip:''} placeholder="—" disabled={dc.module?.state!=='running'} oninput={e=>{ip=e.currentTarget.value;cfgEdited=true;}}/>{:else}<span class="row-v">{dc.config?.ip??'—'}</span>{/if}</div>
+          <div class="row"><span class="row-l"><b>Token</b><small>使用 Windows DPAPI 加密保存，界面只显示末 4 位</small></span>{#if tokenInput&&capable('lamp.config.save')}<input class="field mono" type="password" aria-label="新的挂灯 Token" placeholder="32 位十六进制" disabled={dc.module?.state!=='running'} bind:value={token} oninput={()=>cfgEdited=true}/>{:else}<span class="row-v mono">{dc.config?.tokenTail?'•••• •••• •••• '+dc.config.tokenTail:'—'}</span>{/if}{#if capable('lamp.config.save')&&!unconfigured}<button class="btn" disabled={dc.module?.state!=='running'} onclick={()=>{tokenEdit=!tokenEdit;token='';}}>{tokenEdit?'取消':'更换'}</button>{/if}</div>
+          <ReadConflict readKey={dc.config?JSON.stringify(dc.config):null} edited={cfgEdited} matches={!configDirty} label={dc.config?.ip??'—'} onadopt={()=>{ip=dc.config?.ip??'';token='';tokenEdit=false;cfgEdited=false;}}/>
+          <div class="row foot"><span class="hint" role="status">{errors.config||(dc.module?.state!=='running'?unknownHint:ipBad?'IP 地址格式不正确。':tokenBad?'Token 应为 32 位十六进制。':configDirty?'有未保存的连接设置；保存后重新连接挂灯。':'与已保存配置一致。保存后重新连接挂灯。')}</span>{#if capable('lamp.config.save')}<button class="btn primary" disabled={dc.module?.state!=='running'||!configDirty||ipBad||tokenBad||pending.includes('config')} onclick={()=>{const value={ip:ip.trim(),...(tokenInput?{token}:{})};write('config',async()=>{const result=await dcApi.call<import('./dcTypes').DcLampConfig>('lamp.config.save',value);if(dc.module?.state==='running'&&writeEpoch===dc.epoch){dc.config=result;token='';tokenEdit=false;cfgEdited=false;connOpen=null;}});}}>{#if pending.includes('config')}<span class="spinner"></span>{/if}保存连接</button>{/if}</div>
+        </Collapse>
+      {/if}
     </div>
   {/if}
 {/if}

@@ -184,6 +184,9 @@ def main():
             page.get_by_role('button',name='即将支持（二期）').click()
             assert page.locator('#dc-soon button,#dc-soon input').count()==0
             assert '7c2e' in page.locator('main').inner_text()
+            conn=page.locator('[data-g=lamp] .lamp-conn')
+            expect(conn).to_have_attribute('aria-expanded','false')
+            conn.click();expect(conn).to_have_attribute('aria-expanded','true')
             page.get_by_role('button',name='更换',exact=True).click()
             token=page.get_by_role('textbox',name='新的挂灯 Token')
             expect(token).to_have_attribute('type','password')
@@ -219,7 +222,9 @@ def main():
             expect(page.locator('h1')).to_have_text('Acer 服务保护')
             expect(page.locator('.nav-sub-wrap.absent')).to_have_attribute('inert','')
             page.evaluate("syncFixture.setDcState('running')")
-            page.get_by_role('button',name='服务插件',exact=True).first.click()
+            # 服务插件是分节标题而非重复入口；两个插件按钮直接打开各自页面。
+            expect(page.get_by_role('button',name='服务插件',exact=True)).to_have_count(0)
+            page.get_by_role('button',name='Acer 服务保护',exact=True).first.click()
             expect(page.locator('h1')).to_have_text('Acer 服务保护')
             assert not errors,errors
             print('PASS DC',theme)
